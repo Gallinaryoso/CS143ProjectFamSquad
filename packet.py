@@ -8,5 +8,5 @@ class packet:
     self.destination = destination
     self.payload = payload
     self.acknowledgement = acknowledgement
-    packets += packets
+    self.packets += 1
    
