@@ -4,7 +4,7 @@ class Event:
     def __init__(self, event_type, time):
         '''holder - we need to figure out every possible event type
         and how to deal with each specific case ''' 
-        self.type = event_type
+        self.event_type = event_type
         self.time = time
   
 class EventQueue: 
@@ -17,16 +17,13 @@ class EventQueue:
         heapq.heappush(self.queue, (event.time, event))  
         self.queue_size += 1 
     
-    def pop_event(): 
-        if self.queue == 0: 
+    def pop_event(self): 
+        if self.queue_size == 0: 
             #empty heap means we're done 
             return -1 
-        popped = heapq.pop(self.queue)
+        popped = heapq.heappop(self.queue)[1]
         self.queue_size -= 1
         return popped 
-  
-   
-    
            
            
            
