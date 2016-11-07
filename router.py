@@ -3,20 +3,16 @@ import packet.py
 class router:
   
   def __init__(self):
+    self.id
     self.table = {}
+    self.host_flag
   
-  def computeShortestPath(router or host):
-  
-  def checkInRange(pDest, rangeDest):
+  def computeShortestPath(router):
   
   def chooseNextDest(self, newPacket):
-    pDest = newPacket.destination
-    for key in self.table:
-      found = checkInRange(pDest, key)
-      if(found):
-        nextDest = self.table[key]
-    
-    return nextDest
+    dest = newPacket.destination
+    nextRouter = self.table[dest]
+    return nextRouter
     
 
     
