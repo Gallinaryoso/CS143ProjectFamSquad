@@ -6,7 +6,7 @@ class link:
     self.id = id
     self.end_1 = end_1
     self.end_2 = end_2
-    self.rate = rate
-    self.delay = delay
-    self.buffer = buffer
+    self.rate = rate # in Mbps 
+    self.delay = delay # in ms 
+    self.buffer = buffer # in KB 
   
