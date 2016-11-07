@@ -1,10 +1,10 @@
 import heapq 
 
 class Event: 
-    def __init__(self, type, time):
+    def __init__(self, event_type, time):
         '''holder - we need to figure out every possible event type
         and how to deal with each specific case ''' 
-        self.type = type
+        self.type = event_type
         self.time = time
   
 class EventQueue: 
