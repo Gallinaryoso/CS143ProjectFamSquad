@@ -1,12 +1,10 @@
 
 class packet:
   
-  packets = 0
-  
-  def __init__(self, source, destination, payload, acknowledgement):
+  def __init__(self, source, destination, payload=None, acknowledgement=0):
     self.source = source
     self.destination = destination
     self.payload = payload
     self.acknowledgement = acknowledgement
-    self.packets += 1
    
+
