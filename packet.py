@@ -1,10 +1,10 @@
 
 class packet:
   
-  def __init__(self, source, destination, payload=None, acknowledgement=0):
-    self.source = source
-    self.destination = destination
+  def __init__(self, src, dest, payload=None, ack=0):
+    self.source = src
+    self.destination = dest
     self.payload = payload
-    self.acknowledgement = acknowledgement
+    self.acknowledgement = ack
    
 
