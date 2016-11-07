@@ -2,10 +2,10 @@ import packet.py
 
 class router:
   
-  def __init__(self):
-    self.id
+  def __init__(self, id, host_flag):
+    self.id = id
     self.table = {}
-    self.host_flag
+    self.host_flag = host_flag
   
   def computeShortestPath(router):
   
