@@ -10,6 +10,26 @@ import event_queue.py
 data_packet_size = 1024
 data_ack_size = 64
 
+def fill_event_queue(event_queue, flow, links, packet_amount):
+  
+  time_point = flow.start
+  computeShortestPath(flow.src)
+  current_router = flow.src
+  for i in range(packet_amount):
+    event_queue.insert_event(event('Sent', time_point))
+    
+    while current_router != flow.dest:
+      next_router = current_router[flow.dest]
+      for k in range(links):
+        if (links[k].end_1 == current_router && links[k].end_2 == next_router):
+          current_link = links[k]
+          break
+        
+    time_point += data_packet_size * 8 / current_link.rate + current_link.delay
+    event_queue.insert_event(event('Propagated', time_point))
+    time_point += data_ack_size * 8 / current_link.rate + current_link.delay
+    event_queue.insert_event(event('Acknowledged', time_point))
+    
 def test_0():
   
   #define components used in network
@@ -22,17 +42,15 @@ def test_0():
   # Make a bunch of packets to store in an array
   packet_amount = (flow_1.dataAMT * 10**6) / data_packet_size
   packets = empty(packet_amount)
-  
-  # Create event queue, in which events are sending, 
-  # propagating, and acknowledging the packets
-  time_point = flow_1.start
   for i in range(packet_amount):
     packets[i] = packet('H1', 'H2')
-    event_queue.insert_event(event('Sent', time_point))
-    time_point += data_packet_size * 8 / link_1.rate + link_1.delay
-    event_queue.insert_event(event('Propagated', time_point))
-    time_point += data_ack_size * 8 / link1.rate + link1.delay
-    event_queue.insert_event(event('Acknowledged', time_point))
+  
+  # Create array for links, assuming there is one flow for now
+  links = empty(1)
+  links[0] = link_1
+  # Create event queue, in which events are sending, 
+  # propagating, and acknowledging the packets
+  fill_event_queue(event_queue, flow_1, links, packet_amount)
 
 def main():
   test_0()
