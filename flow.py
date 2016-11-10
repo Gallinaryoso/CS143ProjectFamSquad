@@ -1,8 +1,9 @@
 
 class flow:
   
-  def __init__(self, src, dest, dataAMT, start):
+  def __init__(self, src, dest, dataAMT, start, rate):
     self.src = src
     self.dest = dest
     self.amt = dataAMT # MB
     self.start = start # seconds
+    self.rate = rate # Mbps
