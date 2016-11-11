@@ -7,25 +7,45 @@ import router.py
 import flow.py
 import event_queue.py 
 
-data_packet_size = 1024
-data_ack_size = 64
+data_packet_size = 1024 #bytes
+data_ack_size = 64 #bytes
 
-def fill_event_queue(event_queue, flow, links, packet_amount):
+def run_simulation(event_queue, flow, links, packet_amount):
   
   #set initial time point as start of the flow
   time_point = flow.start
   
+  #set the initial window size
+  window = 1
+  
   #use Dijkstra algorithm to get initial routing tables
   computeShortestPath(flow.src)
   
+  #initialize the window number currently in the network flow
+  current_window = 1
+  
+  #initialize current router as source host
+  current_router = flow.src #initialize current router as source of flow
+  
+  #initialize first link's buffer from host based on window size
+  for i in range(links):
+    if (links[i].end_1 == flow.src)
+      first_link = links[i]
+      break
+      
+  for j in range(window):
+    if first_link.buffer_occupancy + data_packet_size 
+         < first_link.buffer_capacity:
+        first_link.buffer_occupancy += data_packet_size
+    
+  event_queue.insert_event(event('Buffering', time_point, 
   #iterate through all packets, using the same sequential events in the queue
-  for i in range(packet_amount):
-    current_router = flow.src #initialize current router as source of flow
+  while (!event_queue.isEmpty())
     new_router = None #initialize next router, nonexistent for now
     ack_time = 0 #initialize acknowledgement time required as 0
     
     #insert the event that the packet gets sent
-    event_queue.insert_event(event('Sent', time_point))
+    event_queue.insert_event(event('Buffering', time_point))
     
     #iterate until the packet is supposed to reach the final destination
     while current_router != flow.dest:
@@ -71,7 +91,7 @@ def test_0():
   
   # Create event queue, in which events are sending, 
   # propagating, and acknowledging the packets
-  fill_event_queue(event_queue, flow_1, links, packet_amount)
+  fill_event_queue(event_queue, flow_1, links, packets)
 
 def main():
   test_0()
