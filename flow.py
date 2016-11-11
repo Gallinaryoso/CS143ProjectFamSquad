@@ -6,3 +6,4 @@ class flow:
     self.dest = dest
     self.amt = dataAMT # MB
     self.start = start # seconds
+    self.rate = 0 # Mbps
