@@ -10,3 +10,4 @@ class link:
     self.delay = delay # in ms 
     self.buffer_capacity = buffer_capacity # in KB
     self.buffer_occupancy = 0 # in KB
+    self.buffer_packets = [] # all the packets in the buffer
