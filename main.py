@@ -31,7 +31,7 @@ def run_simulation(event_queue, flow, links, packets):
     if first_link.buffer_occupancy + data_packet_size 
          < first_link.buffer_capacity:
         first_link.buffer_occupancy += data_packet_size
-        first_link.buffer_elements.append(packets[current_packet])
+        first_link.buffer_elements.append(packets[j])
         event_queue.insert_event(event('Buffering', flow_start, 
                                        packets[j], first_link))
     current_packet += 1
