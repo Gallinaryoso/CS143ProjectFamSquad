@@ -10,10 +10,7 @@ import event_queue.py
 data_packet_size = 1024 #bytes
 data_ack_size = 64 #bytes
 
-def run_simulation(event_queue, flow, links, packet_amount):
-  
-  #set initial time point as start of the flow
-  time_point = flow.start
+def run_simulation(event_queue, flow, links, packets):
   
   #set the initial window size
   window = 1
@@ -21,15 +18,12 @@ def run_simulation(event_queue, flow, links, packet_amount):
   #use Dijkstra algorithm to get initial routing tables
   computeShortestPath(flow.src)
   
-  #initialize the window number currently in the network flow
-  current_window = 1
-  
-  #initialize current router as source host
-  current_router = flow.src #initialize current router as source of flow
+  #initialize the packet closest from getting into the network flow
+  current_packet = 1
   
   #initialize first link's buffer from host based on window size
   for i in range(links):
-    if (links[i].end_1 == flow.src)
+    if links[i].end_1 == flow.src:
       first_link = links[i]
       break
       
@@ -37,45 +31,94 @@ def run_simulation(event_queue, flow, links, packet_amount):
     if first_link.buffer_occupancy + data_packet_size 
          < first_link.buffer_capacity:
         first_link.buffer_occupancy += data_packet_size
-    
-  event_queue.insert_event(event('Buffering', time_point, 
+        first_link.buffer_elements.append(packets[current_packet])
+        event_queue.insert_event(event('Buffering', flow_start, 
+                                       packets[j], first_link))
+    current_packet += 1
+     
   #iterate through all packets, using the same sequential events in the queue
-  while (!event_queue.isEmpty())
-    new_router = None #initialize next router, nonexistent for now
-    ack_time = 0 #initialize acknowledgement time required as 0
+  while not event_queue.isEmpty():
+  
+    popped_event = event_queue.pop_event()
+    if popped_event.event_type == 'Acknowledging':
+      #insert the event that the packet gets sent if there are still packets
+      if current_packet != len(packets):
+        if first_link.buffer_occupancy + data_packet_size 
+         < first_link.buffer_capacity:
+          first_link.buffer_occupancy += data_packet_size
+          first_link.buffer_elements.append(packets[current_packet])
+          event_queue.insert_event(event('Buffering', popped_event.time, 
+                                         packets[current_packet - 1]), first_link)
+        current_packet += 1
     
-    #insert the event that the packet gets sent
-    event_queue.insert_event(event('Buffering', time_point))
+    else if popped_event.event_type == 'Buffering':
+      transmission = popped_event.packet.size * 8 / 
+                       popped_event.link.rate
+      for k in range(len(popped_event.link.buffer_elements)):
+        popped_event.link.buffer_elements[k].delay += transmission_time
+      event_queue.insert_event(event('Propagating', popped_event.time +
+                                     transmission + popped_event.packet.delay, 
+                                     popped_event.packet, popped_event.link))
     
-    #iterate until the packet is supposed to reach the final destination
-    while current_router != flow.dest:
-      
-      #get to the next router and set the current link correctly
-      next_router = current_router[flow.dest]
-      for k in range(links):
-        if (links[k].end_1 == current_router 
-            and links[k].end_2 == next_router):
-          current_link = links[k]
-          break
+    else:
+      if popped_event.packet_size == data_ack_size
+        and popped_event.link.end_1 == flow.src:
+          event_queue.insert_event(event('Acknowledging', popped_event.time + 
+                                         popped_event.link.delay,
+                                         popped_event.packet, 
+                                         popped_event.link))
           
-      #get time point for propagation based on the link rate and delay
-      time_point += data_packet_size * 8 / current_link.rate
-        + current_link.delay
-      event_queue.insert_event(event('Propagated', time_point))
-      
-      #keep increasing acknowledgement time for each link to add event later
-      ack_time += data_ack_size * 8 / current_link.rate + current_link.delay
-      
-    #update the time point for acknowledgement based on link count, rate, and delay
-    time_point += ack_time
-    event_queue.insert_event(event('Acknowledged', time_point))
+      else if popped_event.packet_size == data_packet_size
+        and popped_event.link.end_2 == flow.dest:
+          ack = packet(popped_event.link.end_1, popped_event.link.end_2, 
+                       data_ack_size)
+          event_queue.insert_event(event('Buffering', popped_event.time +
+                                         popped_event.link.delay,
+                                         ack, popped_event.link))
+          
+      else if popped_event.packet_size == data_packet_size
+        for a in range(len(links)):
+          if links[a].end_1 == popped_event.link.end_2
+            and links[a].end_2 == popped_event.link.end_2.
+                                  chooseNextDest(popped_event.packet):
+              next_link = links[a]
+              break
+              
+          if next_link.buffer_occupancy + data_packet_size 
+            < next_link.buffer_capacity:
+              next_link.buffer_occupancy += data_packet_size
+              popped_event.packet.route.append(popped_event.link.end_2)
+              popped_event.packet.router += 1
+
+        event_queue.insert_event(event('Buffering', popped_event.time +
+                                       popped_event.link.delay,
+                                       popped_event.packet,
+                                       next_link))
+      else:
+        for b in range(len(links)):
+          packet.router -= 1
+          if links[b].end_1 == popped_event.packet.route
+                                 [popped_event.packet.router - 1]
+            and links[b].end_2 == popped_event.link.end_1
+              next_link = links[b]
+              break
+          
+          if next_link.buffer_occupancy + data_packet_size 
+            < next_link.buffer_capacity:
+              next_link.buffer_occupancy += data_packet_size
+              popped_event.packet.router -= 1
+              
+          event_queue.insert_event(event('Buffering', popped_event.time +
+                                 popped_event.link.delay,
+                                 popped_event.packet,
+                                 next_link))                                 
     
 def test_0():
   
   #define components used in network
   event_queue = event_queue() 
-  host_1 = router('H1', 1) 
-  host_2 = router('H2', 1)
+  host_1 = router('H1') 
+  host_2 = router('H2')
   link_1 = link(1, host_1, host_2, 10, 10, 64) 
   flow_1 = flow(host_1, host_2, 20, 1)
   
@@ -84,6 +127,7 @@ def test_0():
   packets = empty(packet_amount)
   for i in range(packet_amount):
     packets[i] = packet('H1', 'H2')
+    packets[i].route.append(flow_1.src)
   
   # Create array for links, assuming there is one flow for now
   links = empty(1)
