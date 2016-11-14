@@ -126,7 +126,7 @@ def test_0():
   packet_amount = (flow_1.dataAMT * 10**6) / data_packet_size
   packets = empty(packet_amount)
   for i in range(packet_amount):
-    packets[i] = packet('H1', 'H2')
+    packets[i] = packet('H1', 'H2', data_packet_size)
     packets[i].route.append(flow_1.src)
   
   # Create array for links, assuming there is one flow for now
