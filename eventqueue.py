@@ -20,12 +20,17 @@ class event_queue:
         self.queue_size += 1 
     
     def pop_event(self): 
-        if self.queue_size == 0: 
+        if self.is_empty():
             #empty heap means we're done 
             return -1 
         popped = heapq.heappop(self.queue)[1]
         self.queue_size -= 1
         return popped 
+    
+    def is_empty(self):
+        # If the queue is empty, return 1
+        if self.queue_size == 0:
+            return 1
            
            
            
