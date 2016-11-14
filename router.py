@@ -7,7 +7,7 @@ class router:
     self.table = {}
     self.host_flag = host_flag
   
-  def computeShortestPath(router):
+  def computeShortestPath(router, links):
   
   def chooseNextDest(self, newPacket):
     dest = newPacket.destination
