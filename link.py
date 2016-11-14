@@ -1,4 +1,5 @@
 import router.py
+import packet.py
 
 class link:
   
@@ -11,3 +12,4 @@ class link:
     self.buffer_capacity = buffer_capacity # in KB
     self.buffer_occupancy = 0 # in KB
     self.buffer_packets = [] # all the packets in the buffer
+    
