@@ -2,7 +2,7 @@ import packet
 
 class router:
   
-  def __init__(self, id,):
+  def __init__(self, id):
     self.id = id
     self.table = {}
   
