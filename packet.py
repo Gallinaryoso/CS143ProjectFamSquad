@@ -9,4 +9,5 @@ class packet:
     self.delay = 0
     self.route = []
     self.router = 0
-    self.time_left_host = -1
+    self.left_source = -1
+    self.arrived_at_dest = -1
