@@ -48,6 +48,7 @@ def run_simulation(event_queue, flow, links, packets):
       event_queue.insert_event(event('Propagating', popped_event.time +
                                      transmission + popped_event.packet.delay, 
                                      popped_event.packet, popped_event.link))
+      popped_event.packet.delay = 0
     
     else:
       if popped_event.packet.size == data_ack_size \
