@@ -11,5 +11,5 @@ class link:
     self.delay = delay # in ms 
     self.buffer_capacity = buffer_capacity # in KB
     self.buffer_occupancy = 0 # in bytes
-    self.buffer_packets = [] # packets in the buffer
+    self.buffer_elements = [] # packets in the buffer
     
