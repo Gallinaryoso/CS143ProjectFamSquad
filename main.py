@@ -59,8 +59,8 @@ def run_simulation(event_queue, flow, links, packets):
                 first_link.buffer_elements.append(packets[current_packet - 1])
                 event_queue.insert_event(event('Buffering', popped_event.time +
                                                popped_event.link.delay * 10**-3,
-                                               packets[current_packet - 1]), 
-                                               first_link)
+                                               packets[current_packet - 1], 
+                                               first_link))
           current_packet += 1
           
       elif popped_event.packet.size == data_packet_size \
@@ -126,7 +126,7 @@ def test_0():
   packets = [0] * packet_amount
   for i in range(packet_amount):
     packets[i] = packet(i + 1, 'H1', 'H2', data_packet_size)
-    packets[i].route.append(flow_1.src)
+    packets[i].route.append(flow_1.src.id)
   
   # Create array for links, assuming there is one flow for now
   links = [0]
