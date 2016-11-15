@@ -11,7 +11,7 @@ data_ack_size = 64 #bytes
 def run_simulation(event_queue, flow, links, packets):
   
   #set the initial window size
-  window = 1
+  window = 2
   
   #use Dijkstra algorithm to get initial routing tables
 
@@ -35,9 +35,7 @@ def run_simulation(event_queue, flow, links, packets):
     current_packet += 1
      
   #iterate through all packets, using the same sequential events in the queue
-  i = 0 
-  while not event_queue.is_empty() and i < 10:
-    i += 1 
+  while not event_queue.is_empty():
   
     popped_event = event_queue.pop_event()
     if popped_event.event_type == 'Buffering':
