@@ -95,7 +95,7 @@ def run_simulation(event_queue, flow, links, packets):
         if next_link.buffer_occupancy + data_packet_size  \
           < next_link.buffer_capacity * 1000:
             next_link.buffer_occupancy += data_packet_size
-            popped_event.link.buffer_elements.append(popped_event.packet)
+            next_link.buffer_elements.append(popped_event.packet)
             popped_event.packet.route.append(popped_event.link.end_2.id)
             popped_event.packet.router += 1
             event_queue.insert_event(event('Buffering', popped_event.time +
@@ -114,7 +114,7 @@ def run_simulation(event_queue, flow, links, packets):
         if next_link.buffer_occupancy + data_ack_size \
           < next_link.buffer_capacity * 1000:
             next_link.buffer_occupancy += data_ack_size
-            popped_event.link.buffer_elements.append(popped_event.packet)
+            next_link.buffer_elements.append(popped_event.packet)
             popped_event.packet.router -= 1             
             event_queue.insert_event(event('Buffering', popped_event.time +
                                  popped_event.link.delay * 10**-3,
