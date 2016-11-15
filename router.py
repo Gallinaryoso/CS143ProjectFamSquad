@@ -1,4 +1,4 @@
-import packet.py
+import packet
 
 class router:
   
@@ -7,6 +7,7 @@ class router:
     self.table = {}
   
   def computeShortestPath(router, links):
+  	return -1
   
   def chooseNextDest(self, newPacket):
     dest = newPacket.destination

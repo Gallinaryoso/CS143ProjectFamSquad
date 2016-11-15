@@ -1,5 +1,5 @@
-import router.py
-import packet.py
+import router
+import packet
 
 class link:
   

@@ -3,12 +3,13 @@ import packet
 import link
 import router
 import flow
-import event_queue
+import eventqueue
 
 data_packet_size = 1024 #bytes
 data_ack_size = 64 #bytes
 
 def run_simulation(event_queue, flow, links, packets):
+  um = 1
   #set the initial window size
   window = 1
   
