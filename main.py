@@ -134,11 +134,45 @@ def test_0():
     packets[i].route.append(flow_1.src.id)
   
   # Create array for links, assuming there is one flow for now
-  links = [0]
-  links[0] = link_1
+  links = [link_1]
   
   # Create event queue, in which events are sending, 
   # propagating, and acknowledging the packets
   run_simulation(the_event_queue, flow_1, links, packets)
 
-test_0()
+def test_1():
+  the_event_queue = event_queue() 
+
+  host_1 = router('H1') 
+  host_2 = router('H2')
+  router_1 = router('R1')
+  router_2 = router('R2')
+  router_3 = router('R3')
+  router_4 = router('R4')
+  link_0 = link(0, host_1, router_1, 12.5, 10, 64) 
+  link_1 = link(1, router_1, router_2, 10, 10, 64) 
+  link_2 = link(2, router_1, router_3, 10, 10, 64) 
+  link_3 = link(3, router_2, router_4, 10, 10, 64) 
+  link_4 = link(4, router_3, router_4, 10, 10, 64) 
+  link_5 = link(5, router_4, host_2, 12.5, 10, 64) 
+  host_1.table = {host_2:router_1}
+  router_1.table = {host_2:router_2}
+  router_2.table = {host_2:router_4}
+  router_3.table = {host_2:router_4}
+  router_4.table = {host_2:host_2}
+
+  flow_1 = flow(host_1, host_2, 20, 0.5)
+
+  packet_amount = (flow_1.amt * 10**6) / data_packet_size
+  packets = [0] * packet_amount
+  for i in range(packet_amount):
+    packets[i] = packet(i + 1, host_1, host_2, data_packet_size)
+    packets[i].route.append(flow_1.src.id)
+
+  links = [link_0,link_1,link_2,link_3,link_4,link_5]
+
+  run_simulation(the_event_queue, flow_1, links, packets)
+
+#test_0()
+test_1() 
+
