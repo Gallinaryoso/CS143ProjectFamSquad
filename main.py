@@ -35,7 +35,9 @@ def run_simulation(event_queue, flow, links, packets):
     current_packet += 1
      
   #iterate through all packets, using the same sequential events in the queue
-  while not event_queue.is_empty():
+  i = 0 
+  while not event_queue.is_empty() and i < 10:
+    i += 1 
   
     popped_event = event_queue.pop_event()
     if popped_event.event_type == 'Buffering':
@@ -82,24 +84,26 @@ def run_simulation(event_queue, flow, links, packets):
                                        ack, popped_event.link))
           
       elif popped_event.packet.size == data_packet_size:
+        next_link = links[0]
         for a in range(len(links)):
           if links[a].end_1 == popped_event.link.end_2 \
             and links[a].end_2 == \
             popped_event.link.end_2.chooseNextDest(popped_event.packet):
               next_link = links[a]
               break
-              
-          if next_link.buffer_occupancy + data_packet_size  \
-            < next_link.buffer_capacity * 1000:
-              next_link.buffer_occupancy += data_packet_size
-              popped_event.link.buffer_elements.append(popped_event.packet)
-              popped_event.packet.route.append(popped_event.link.end_2.id)
-              popped_event.packet.router += 1
-              event_queue.insert_event(event('Buffering', popped_event.time +
+
+        if next_link.buffer_occupancy + data_packet_size  \
+          < next_link.buffer_capacity * 1000:
+            next_link.buffer_occupancy += data_packet_size
+            popped_event.link.buffer_elements.append(popped_event.packet)
+            popped_event.packet.route.append(popped_event.link.end_2.id)
+            popped_event.packet.router += 1
+            event_queue.insert_event(event('Buffering', popped_event.time +
                                        popped_event.link.delay * 10**-3,
                                        popped_event.packet,
                                        next_link))
       else:
+        next_link = links[0]
         for b in range(len(links)):
           if links[b].end_1 == \
           popped_event.packet.route[popped_event.packet.router - 1] \
@@ -107,12 +111,12 @@ def run_simulation(event_queue, flow, links, packets):
               next_link = links[b]
               break
           
-          if next_link.buffer_occupancy + data_ack_size \
-            < next_link.buffer_capacity * 1000:
-              next_link.buffer_occupancy += data_ack_size
-              popped_event.link.buffer_elements.append(popped_event.packet)
-              popped_event.packet.router -= 1             
-              event_queue.insert_event(event('Buffering', popped_event.time +
+        if next_link.buffer_occupancy + data_ack_size \
+          < next_link.buffer_capacity * 1000:
+            next_link.buffer_occupancy += data_ack_size
+            popped_event.link.buffer_elements.append(popped_event.packet)
+            popped_event.packet.router -= 1             
+            event_queue.insert_event(event('Buffering', popped_event.time +
                                  popped_event.link.delay * 10**-3,
                                  popped_event.packet,
                                  next_link))                                 
