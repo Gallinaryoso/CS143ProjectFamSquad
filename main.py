@@ -54,7 +54,7 @@ def run_simulation(event_queue, flow, links, packets):
         and popped_event.link.end_1 == flow.src:
           if current_packet != len(packets):
             if first_link.buffer_occupancy + data_packet_size \
-              < first_link.buffer_capacity * 100:
+              < first_link.buffer_capacity * 1000: # MB to KB 
                 first_link.buffer_occupancy += data_packet_size
                 first_link.buffer_elements.append(packets[current_packet - 1])
                 event_queue.insert_event(event('Buffering', popped_event.time +
