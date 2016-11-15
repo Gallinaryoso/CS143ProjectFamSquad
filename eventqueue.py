@@ -25,8 +25,18 @@ class event_queue:
             return -1 
         popped = heapq.heappop(self.queue)[1]
         self.queue_size -= 1
+        verbose = True
         if verbose: 
-            print popped.event_type, popped.time, popped.link, popped.packet.id, popped.packet.source, popped.packet.destination, popped.packet.size, popped.packet.route
+            print "event: " + str(popped.event_type)
+            print "time: " + str(popped.time)
+            print "packet_id: " + str(popped.packet.id)
+            print "packet size : " + str(popped.packet.size)
+            print "current link end 1: " + str(popped.link.end_1.id)
+            print "current link end 2: " + str(popped.link.end_2.id)
+            print "source: " + str(popped.packet.source)
+            print "destination: " + str(popped.packet.destination)
+            print "route: " + str(popped.packet.route)
+            print "\n"
         
         return popped 
     
