@@ -68,6 +68,10 @@ def run_simulation(event_queue, flow, links, packets):
           ack = packet(popped_event.packet.id, popped_event.link.end_1, 
                        popped_event.link.end_2, data_ack_size)
           
+          ack.router += 1
+          ack.route = popped_event.packet.route
+          ack.route.append(flow.dest)
+          
           if popped_event.link.buffer_occupancy + data_ack_size  \
             < popped_event.link.buffer_capacity * 1000:
               popped_event.link.buffer_occupancy += data_ack_size
