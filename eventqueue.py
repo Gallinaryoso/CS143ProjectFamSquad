@@ -19,12 +19,15 @@ class event_queue:
         heapq.heappush(self.queue, (event.time, event))  
         self.queue_size += 1 
     
-    def pop_event(self): 
+    def pop_event(self, verbose = False): 
         if self.is_empty():
             #empty heap means we're done 
             return -1 
         popped = heapq.heappop(self.queue)[1]
         self.queue_size -= 1
+        if verbose: 
+            print popped.event_type, popped.time, popped.link, popped.packet.id, popped.packet.source, popped.packet.destination, popped.packet.size, popped.packet.route
+        
         return popped 
     
     def is_empty(self):
