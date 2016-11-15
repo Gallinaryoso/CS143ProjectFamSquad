@@ -28,7 +28,7 @@ def run_simulation(event_queue, flow, links, packets):
       break
       
   for j in range(window):
-    if first_link.buffer_occupancy + data_packet_size 
+    if first_link.buffer_occupancy + data_packet_size \
          < first_link.buffer_capacity * 100:
         first_link.buffer_occupancy += data_packet_size
         first_link.buffer_elements.append(packets[j])
@@ -52,10 +52,10 @@ def run_simulation(event_queue, flow, links, packets):
                                      popped_event.packet, popped_event.link))
     
     else:
-      if popped_event.packet_size == data_ack_size
+      if popped_event.packet_size == data_ack_size \
         and popped_event.link.end_1 == flow.src:
           if current_packet != len(packets):
-            if first_link.buffer_occupancy + data_packet_size 
+            if first_link.buffer_occupancy + data_packet_size \
               < first_link.buffer_capacity * 100:
                 first_link.buffer_occupancy += data_packet_size
                 first_link.buffer_elements.append(packets[current_packet - 1])
@@ -65,7 +65,7 @@ def run_simulation(event_queue, flow, links, packets):
                                                first_link)
           current_packet += 1
           
-      else if popped_event.packet_size == data_packet_size
+      elif popped_event.packet_size == data_packet_size \
         and popped_event.link.end_2 == flow.dest:
           ack = packet(popped_event.packet.id, popped_event.link.end_1, 
                        popped_event.link.end_2, data_ack_size)
@@ -78,15 +78,15 @@ def run_simulation(event_queue, flow, links, packets):
                                        popped_event.link.delay * 10**-3,
                                        ack, popped_event.link))
           
-      else if popped_event.packet_size == data_packet_size
+      elif popped_event.packet_size == data_packet_size
         for a in range(len(links)):
-          if links[a].end_1 == popped_event.link.end_2
-            and links[a].end_2 == popped_event.link.end_2.
+          if links[a].end_1 == popped_event.link.end_2 \
+            and links[a].end_2 == popped_event.link.end_2. \ 
                                   chooseNextDest(popped_event.packet):
               next_link = links[a]
               break
               
-          if next_link.buffer_occupancy + data_packet_size 
+          if next_link.buffer_occupancy + data_packet_size  \
             < next_link.buffer_capacity * 100:
               next_link.buffer_occupancy += data_packet_size
               popped_event.link.buffer_elements.append(popped_event.packet)
@@ -98,13 +98,13 @@ def run_simulation(event_queue, flow, links, packets):
                                        next_link))
       else:
         for b in range(len(links)):
-          if links[b].end_1 == popped_event.packet.route
+          if links[b].end_1 == popped_event.packet.route 
                                  [popped_event.packet.router - 1]
             and links[b].end_2 == popped_event.link.end_1
               next_link = links[b]
               break
           
-          if next_link.buffer_occupancy + data_ack_size 
+          if next_link.buffer_occupancy + data_ack_size \
             < next_link.buffer_capacity * 100:
               next_link.buffer_occupancy += data_ack_size
               popped_event.link.buffer_elements.append(popped_event.packet)
