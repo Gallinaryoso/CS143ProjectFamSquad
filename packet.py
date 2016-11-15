@@ -7,3 +7,5 @@ class packet:
     self.destination = dest
     self.size = size #bytes
     self.delay = 0
+    self.route = []
+    self.router = 0
