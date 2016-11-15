@@ -6,7 +6,7 @@ class router:
     self.id = id
     self.table = {}
   
-  def computeShortestPath(router, links):
+  def computeShortestPath(self, links):
   	return -1
   
   def chooseNextDest(self, newPacket):
