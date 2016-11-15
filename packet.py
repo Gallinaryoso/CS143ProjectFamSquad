@@ -9,4 +9,4 @@ class packet:
     self.delay = 0
     self.route = []
     self.router = 0
-    self.dropped = false 
+    self.dropped = False 
