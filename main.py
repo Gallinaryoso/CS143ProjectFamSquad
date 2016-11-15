@@ -11,7 +11,7 @@ data_ack_size = 64 #bytes
 def run_simulation(event_queue, flow, links, packets):
   
   #set the initial window size
-  window = 2
+  window = 1000 
   
   #use Dijkstra algorithm to get initial routing tables
 
@@ -53,10 +53,11 @@ def run_simulation(event_queue, flow, links, packets):
     else:
       if popped_event.packet.size == data_ack_size \
         and popped_event.link.end_1 == flow.src:
-          if current_packet != len(packets):
+          if current_packet <= len(packets):
             if first_link.buffer_occupancy + data_packet_size \
               < first_link.buffer_capacity * 1000: # MB to KB 
                 first_link.buffer_occupancy += data_packet_size
+
                 first_link.buffer_elements.append(packets[current_packet - 1])
                 event_queue.insert_event(event('Buffering', popped_event.time +
                                                popped_event.link.delay * 10**-3,
