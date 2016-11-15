@@ -1,9 +1,9 @@
 import numpy
-import packet
-import link
-import router
-import flow
-import eventqueue
+from packet import packet 
+from link import link
+from router import router 
+from flow import flow 
+from eventqueue import event_queue
 
 data_packet_size = 1024 #bytes
 data_ack_size = 64 #bytes
@@ -115,7 +115,7 @@ def run_simulation(event_queue, flow, links, packets):
 def test_0():
   
   #define components used in network
-  the_event_queue = eventqueue.event_queue() 
+  the_event_queue = event_queue() 
   host_1 = router('H1') 
   host_2 = router('H2')
   link_1 = link(1, host_1, host_2, 10, 10, 64) 
