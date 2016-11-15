@@ -115,7 +115,7 @@ def run_simulation(event_queue, flow, links, packets):
 def test_0():
   
   #define components used in network
-  the_event_queue = event_queue() 
+  the_event_queue = eventqueue.event_queue() 
   host_1 = router('H1') 
   host_2 = router('H2')
   link_1 = link(1, host_1, host_2, 10, 10, 64) 
