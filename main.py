@@ -1,17 +1,14 @@
 import numpy
-
-import host.py
-import packet.py
-import link.py
-import router.py
-import flow.py
-import event_queue.py 
+import packet
+import link
+import router
+import flow
+import event_queue
 
 data_packet_size = 1024 #bytes
 data_ack_size = 64 #bytes
 
 def run_simulation(event_queue, flow, links, packets):
-  
   #set the initial window size
   window = 1
   
@@ -70,7 +67,7 @@ def run_simulation(event_queue, flow, links, packets):
           ack = packet(popped_event.packet.id, popped_event.link.end_1, 
                        popped_event.link.end_2, data_ack_size)
           
-          if next_link.buffer_occupancy + data_ack_size 
+          if next_link.buffer_occupancy + data_ack_size  \
             < next_link.buffer_capacity * 100:
               next_link.buffer_occupancy += data_ack_size
               popped_event.link.buffer_elements.append(ack)              
@@ -78,11 +75,11 @@ def run_simulation(event_queue, flow, links, packets):
                                        popped_event.link.delay * 10**-3,
                                        ack, popped_event.link))
           
-      elif popped_event.packet_size == data_packet_size
+      elif popped_event.packet_size == data_packet_size:
         for a in range(len(links)):
           if links[a].end_1 == popped_event.link.end_2 \
-            and links[a].end_2 == popped_event.link.end_2. \ 
-                                  chooseNextDest(popped_event.packet):
+            and links[a].end_2 == \
+            popped_event.link.end_2.chooseNextDest(popped_event.packet):
               next_link = links[a]
               break
               
@@ -98,9 +95,9 @@ def run_simulation(event_queue, flow, links, packets):
                                        next_link))
       else:
         for b in range(len(links)):
-          if links[b].end_1 == popped_event.packet.route 
-                                 [popped_event.packet.router - 1]
-            and links[b].end_2 == popped_event.link.end_1
+          if links[b].end_1 == \
+          popped_event.packet.route[popped_event.packet.router - 1] \
+            and links[b].end_2 == popped_event.link.end_1:
               next_link = links[b]
               break
           
