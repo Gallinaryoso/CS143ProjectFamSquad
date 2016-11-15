@@ -41,7 +41,7 @@ def run_simulation(event_queue, flow, links, packets):
   
     popped_event = event_queue.pop_event()
     if popped_event.event_type == 'Buffering':
-      transmission = popped_event.packet.size * 8 / 
+      transmission = popped_event.packet.size * 8 / \
                        (popped_event.link.rate * 10**3)
       popped_event.link.buffer_elements.remove(popped_event.packet)
       popped_event.link.buffer_occupancy -= popped_event.packet.size
