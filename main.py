@@ -70,7 +70,7 @@ def run_simulation(event_queue, flow, links, packets):
           
           ack.router += 1
           ack.route = popped_event.packet.route
-          ack.route.append(flow.dest)
+          ack.route.append(flow.dest.id)
           
           if popped_event.link.buffer_occupancy + data_ack_size  \
             < popped_event.link.buffer_capacity * 1000:
@@ -92,7 +92,7 @@ def run_simulation(event_queue, flow, links, packets):
             < next_link.buffer_capacity * 1000:
               next_link.buffer_occupancy += data_packet_size
               popped_event.link.buffer_elements.append(popped_event.packet)
-              popped_event.packet.route.append(popped_event.link.end_2)
+              popped_event.packet.route.append(popped_event.link.end_2.id)
               popped_event.packet.router += 1
               event_queue.insert_event(event('Buffering', popped_event.time +
                                        popped_event.link.delay * 10**-3,
@@ -129,7 +129,7 @@ def test_0():
   packet_amount = (flow_1.amt * 10**6) / data_packet_size
   packets = [0] * packet_amount
   for i in range(packet_amount):
-    packets[i] = packet(i + 1, 'H1', 'H2', data_packet_size)
+    packets[i] = packet(i + 1, host_1, host_2, data_packet_size)
     packets[i].route.append(flow_1.src.id)
   
   # Create array for links, assuming there is one flow for now

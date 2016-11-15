@@ -33,8 +33,8 @@ class event_queue:
             print "packet size : " + str(popped.packet.size)
             print "current link end 1: " + str(popped.link.end_1.id)
             print "current link end 2: " + str(popped.link.end_2.id)
-            print "source: " + str(popped.packet.source)
-            print "destination: " + str(popped.packet.destination)
+            print "source: " + str(popped.packet.source.id)
+            print "destination: " + str(popped.packet.destination.id)
             print "route: " + str(popped.packet.route)
             print "\n"
         
