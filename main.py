@@ -9,7 +9,7 @@ data_packet_size = 1024 #bytes
 data_ack_size = 64 #bytes
 
 def run_simulation(event_queue, flow, links, packets):
-  um = 1
+  
   #set the initial window size
   window = 1
   
@@ -27,7 +27,7 @@ def run_simulation(event_queue, flow, links, packets):
       
   for j in range(window):
     if first_link.buffer_occupancy + data_packet_size \
-         < first_link.buffer_capacity * 100:
+      < first_link.buffer_capacity * 100:
         first_link.buffer_occupancy += data_packet_size
         first_link.buffer_elements.append(packets[j])
         event_queue.insert_event(event('Buffering', flow_start, 
