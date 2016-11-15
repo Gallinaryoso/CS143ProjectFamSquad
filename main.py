@@ -1,6 +1,7 @@
 import numpy as np
 from packet import packet 
 from link import link
+import test 
 from router import router 
 from flow import flow 
 from eventqueue import event_queue, event
@@ -8,10 +9,12 @@ from eventqueue import event_queue, event
 data_packet_size = 1024 #bytes
 data_ack_size = 64 #bytes
 
+
+
 def run_simulation(event_queue, flow, links, packets):
   
   #set the initial window size
-  window = 1000 
+  window = 1
   
   #use Dijkstra algorithm to get initial routing tables
 
@@ -30,6 +33,7 @@ def run_simulation(event_queue, flow, links, packets):
       < first_link.buffer_capacity * 1000:
         first_link.buffer_occupancy += data_packet_size
         first_link.buffer_elements.append(packets[j])
+        packets[j].left_source = flow.start
         event_queue.insert_event(event('Buffering', flow.start, 
                                        packets[j], first_link))
     current_packet += 1
@@ -77,7 +81,8 @@ def run_simulation(event_queue, flow, links, packets):
           if popped_event.link.buffer_occupancy + data_ack_size  \
             < popped_event.link.buffer_capacity * 1000:
               popped_event.link.buffer_occupancy += data_ack_size
-              popped_event.link.buffer_elements.append(ack)              
+              popped_event.link.buffer_elements.append(ack)    
+              popped_event.packet.arrived_at_dest = popped_event.time          
               event_queue.insert_event(event('Buffering', popped_event.time +
                                        popped_event.link.delay * 10**-3,
                                        ack, popped_event.link))
@@ -118,8 +123,15 @@ def run_simulation(event_queue, flow, links, packets):
             event_queue.insert_event(event('Buffering', popped_event.time +
                                  popped_event.link.delay * 10**-3,
                                  popped_event.packet,
-                                 next_link))                                 
-    
+                                 next_link))       
+
+
+
+ verify_packets(packets)
+
+
+
+
 def test_0():
   
   #define components used in network
