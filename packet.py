@@ -10,4 +10,3 @@ class packet:
     self.route = []
     self.router = 0
     self.time_left_host = -1
-    self.dropped = False 
