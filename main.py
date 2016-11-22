@@ -9,8 +9,6 @@ from eventqueue import event_queue, event
 data_packet_size = 1024 #bytes
 data_ack_size = 64 #bytes
 
-
-
 def run_simulation(event_queue, flow, links, packets):
   
   #set the initial window size
@@ -55,7 +53,7 @@ def run_simulation(event_queue, flow, links, packets):
       popped_event.packet.delay = 0
     
     else:
-      if popped_event.packet.size == data_ack_size \
+      if popped_event.packet.type = 'ack' \
         and popped_event.link.end_1 == flow.src:
           if current_packet <= len(packets):
             if first_link.buffer_occupancy + data_packet_size \
@@ -69,10 +67,10 @@ def run_simulation(event_queue, flow, links, packets):
                                                first_link))
           current_packet += 1
           
-      elif popped_event.packet.size == data_packet_size \
+      elif popped_event.packet.type == 'packet' \
         and popped_event.link.end_2 == flow.dest:
           ack = packet(popped_event.packet.id, popped_event.link.end_1, 
-                       popped_event.link.end_2, data_ack_size)
+                       popped_event.link.end_2, 'ack', data_ack_size)
           
           ack.router += 1
           ack.route = popped_event.packet.route
@@ -87,7 +85,7 @@ def run_simulation(event_queue, flow, links, packets):
                                        popped_event.link.delay * 10**-3,
                                        ack, popped_event.link))
           
-      elif popped_event.packet.size == data_packet_size:
+      elif popped_event.packet.type == 'packet':
         next_link = links[0]
         for a in range(len(links)):
           if links[a].end_1 == popped_event.link.end_2 \
@@ -125,12 +123,7 @@ def run_simulation(event_queue, flow, links, packets):
                                  popped_event.packet,
                                  next_link))       
 
-
-
  verify_packets(packets)
-
-
-
 
 def test_0():
   
@@ -145,7 +138,7 @@ def test_0():
   packet_amount = (flow_1.amt * 10**6) / data_packet_size
   packets = [0] * packet_amount
   for i in range(packet_amount):
-    packets[i] = packet(i + 1, host_1, host_2, data_packet_size)
+    packets[i] = packet(i + 1, host_1, host_2, 'packet', data_packet_size)
     packets[i].route.append(flow_1.src.id)
   
   # Create array for links, assuming there is one flow for now
@@ -181,7 +174,7 @@ def test_1():
   packet_amount = (flow_1.amt * 10**6) / data_packet_size
   packets = [0] * packet_amount
   for i in range(packet_amount):
-    packets[i] = packet(i + 1, host_1, host_2, data_packet_size)
+    packets[i] = packet(i + 1, host_1, host_2, 'packet', data_packet_size)
     packets[i].route.append(flow_1.src.id)
 
   links = [link_0,link_1,link_2,link_3,link_4,link_5]
