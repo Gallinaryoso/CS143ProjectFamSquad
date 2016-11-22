@@ -1,10 +1,11 @@
 
 class packet:
   
-  def __init__(self, id, src, dest, size):
+  def __init__(self, id, src, dest, type, size):
     self.id = id
     self.source = src
     self.destination = dest
+    self.type = type #packet, ack, or route
     self.size = size #bytes
     self.delay = 0
     self.route = []
