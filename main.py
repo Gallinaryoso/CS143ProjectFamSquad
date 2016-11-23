@@ -53,7 +53,7 @@ def run_simulation(event_queue, flow, links, packets):
       popped_event.packet.delay = 0
     
     else:
-      if popped_event.packet.type = 'ack' \
+      if popped_event.packet.type == 'ack' \
         and popped_event.link.end_1 == flow.src:
           if current_packet <= len(packets):
             if first_link.buffer_occupancy + data_packet_size \
