@@ -13,9 +13,9 @@ def test_packets(packets):
   for p in packets:  
     x.append(p.left_source)
     y.append(p.arrived_at_dest - p.left_source)
-      if p.route != ['H1', 'R1', 'R2', 'R4', 'H2'] and p.size == data_packet_size:
-        print p.route
-        i += 1
+    if p.route != ['H1', 'R1', 'R2', 'R4', 'H2'] and p.size == data_packet_size:
+      print p.route
+      i += 1
     print i 
     print x
     print y 
