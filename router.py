@@ -6,7 +6,7 @@ class router:
     self.id = id
     self.table = {}
   
-  def computeShortestPath(self, links):
+  def computeShortestPath(self, links, event_queue):
   	numLinks = len(links)
   	for link in links:
   		bufCap = link.buffer_capacity
