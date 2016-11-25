@@ -16,8 +16,8 @@ class link:
   
   #update link buffer by adding a packet, only if the buffer is not filled
   def updateBuffer(self, event_queue, time, packet, flow):
-    if buffer_occupancy + packet.size \
-        < buffer_capacity * 1000:
-          buffer_occupancy += packet.size
-          buffer_elements.append(packet)
+    if self.buffer_occupancy + packet.size \
+        < self.buffer_capacity * 1000:
+          self.buffer_occupancy += packet.size
+          self.buffer_elements.append(packet)
           event_queue.insert_event(event('Buffering', time, packet, self, flow))
