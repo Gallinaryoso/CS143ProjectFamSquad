@@ -20,4 +20,4 @@ class link:
         < self.buffer_capacity * 1000:
           self.buffer_occupancy += packet.size
           self.buffer_elements.append(packet)
-          event_queue.insert_event(event('Buffering', time, packet, self, flow))
+          event_queue.insert_event(eventqueue.event('Buffering', time, packet, self, flow))
