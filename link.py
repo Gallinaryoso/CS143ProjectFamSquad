@@ -1,6 +1,6 @@
 import router
 import packet
-import event_queue
+import eventqueue
 
 class link:
   
