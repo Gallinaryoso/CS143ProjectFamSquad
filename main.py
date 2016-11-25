@@ -5,7 +5,7 @@ from link import link
 import test 
 from router import router 
 from flow import flow 
-from event_queue import event_queue, event
+from eventqueue import event_queue, event
 
 data_packet_size = 1024 #bytes
 data_ack_size = 64 #bytes
