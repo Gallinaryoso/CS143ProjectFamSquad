@@ -1,4 +1,5 @@
-import numpy as np
+import sys
+sys.path.insert(0, '/Downloads/numpy-1.11.2/numpy')
 from packet import packet 
 from link import link
 import test 
@@ -11,17 +12,17 @@ data_ack_size = 64 #bytes
 
 def startPropagating(popped_event, event_queue):
   transmission = popped_event.packet.size * 8 / \
-                 (popped_event.link.rate * 10**6)
+                 (popped_event.link.rate * 1000000.)
   popped_event.link.buffer_elements.remove(popped_event.packet)
   popped_event.link.buffer_occupancy -= popped_event.packet.size
   for i in range(len(popped_event.link.buffer_elements)):
     popped_event.link.buffer_elements[i].delay += transmission
-    if popped_event.link.buffer_elements[0].current_router !=
+    if popped_event.link.buffer_elements[0].current_router != \
       popped_event.packet.current_router:
         popped_event.link.buffer_elements[i].delay += \
           popped_event.link.delay
   event_queue.insert_event(event('Propagating', popped_event.time +
-                                 popped_event.link.delay, 
+                                 popped_event.link.delay / 1000., 
                                  popped_event.packet, popped_event.link,
                                  popped_event.flow))
   
@@ -32,7 +33,7 @@ def run_simulation(event_queue, flows, links):
   
   #add all of the packets for each flow, with the flow source put into route
   for flow in flows:
-    packet_amount = (flow.amt * 10**6) / data_packet_size
+    packet_amount = (flow.amt * 1000000) / data_packet_size
     all_packets = [0] * packet_amount
     for i in range(packet_amount):
       all_packets[i] = packet(i + 1, flow.src, flow.dest, 'packet',
@@ -41,7 +42,7 @@ def run_simulation(event_queue, flows, links):
     flow.packets = all_packets
     
   #set the initial window size
-  window = 1
+  window = 50
   
   #compute the shortest path to get initial routing tables
   #sample_router.computeShortestPath(links, event_queue)
@@ -49,20 +50,19 @@ def run_simulation(event_queue, flows, links):
   #initialize first link's buffer for each flow from host based on window size
   for i in range(len(flows)):
     for j in range(len(links)):
-      if links[j].end_1 == flows[i].src or links[j].end_2 == flows[i].src
+      if links[j].end_1 == flows[i].src or links[j].end_2 == flows[i].src:
         first_link = links[j]
         break
      
     for k in range(window):
-      transmission = flows[i].packets[k] * 8 / \
-                 (first_link.rate * 10**6)
-      first_link.updateBuffer(event_queue, flow.start + transmission,
-                              flows[i].packets[k], flow)
-      flow.current_packet += 1
-     
+      transmission = flows[i].packets[k].size * 8 / \
+                 (first_link.rate * 1000000.)
+      first_link.updateBuffer(event_queue, flows[i].start + transmission,
+                              flows[i].packets[k], flows[i])
+      flows[i].current_packet += 1
+
   #iterate through all packets, using the same sequential events in the queue
   while not event_queue.is_empty():
-  
     #get event after popping from queue
     popped_event = event_queue.pop_event()
     
@@ -70,7 +70,8 @@ def run_simulation(event_queue, flows, links):
     
       if popped_event.packet.delay > 0:
         event_queue.insert_event(event(popped_event.event_type, 
-                                       popped_event.time + popped_event.packet.delay, 
+                                       popped_event.time + 
+                                       popped_event.packet.delay, 
                                        popped_event.packet, popped_event.link, 
                                        popped_event.flow))
         
@@ -79,10 +80,10 @@ def run_simulation(event_queue, flows, links):
 
       else:
         if popped_event.packet.type == 'ack' \
-          and (popped_event.packet.current_router = popped_event.link.end_1 
-            and popped_event.link.end_2 == flow.src) or
-            (popped_event.packet.current_router = popped_event.link.end_2 
-            and popped_event.link.end_1 == flow.src):
+          and (popped_event.packet.current_router == popped_event.link.end_1 
+            and popped_event.link.end_2 == popped_event.flow.src) or \
+            (popped_event.packet.current_router == popped_event.link.end_2 
+            and popped_event.link.end_1 == popped_event.flow.src):
               new_packet = popped_event.flow.packets \
                            [popped_event.flow.current_packet - 1]
               for j in range(len(links)):
@@ -90,21 +91,25 @@ def run_simulation(event_queue, flows, links):
                   or links[j].end_2 == popped_event.flow.src:
                   first_link = links[j]                
               transmission = new_packet.size * 8 / \
-                             (first_link.rate * 10**6)
+                             (first_link.rate * 1000000.)
               first_link.updateBuffer(event_queue, popped_event.time +
                                         transmission, new_packet, 
                                         popped_event.flow)
               popped_event.flow.current_packet += 1
 
         elif popped_event.packet.type == 'packet' \
-          and popped_event.link.end_2 == flow.dest:
-            ack = packet(popped_event.packet.id, flow.src, flow.dest, 
-                         'ack', data_ack_size, flow.dest)
+          and (popped_event.packet.current_router == popped_event.link.end_1 
+            and popped_event.link.end_2 == popped_event.flow.dest) or \
+            (popped_event.packet.current_router == popped_event.link.end_2 
+            and popped_event.link.end_1 == popped_event.flow.dest):
+            ack = packet(popped_event.packet.id, popped_event.flow.src, 
+                         popped_event.flow.dest, 'ack', data_ack_size, 
+                         popped_event.flow.dest)
 
-            ack.router += 1
+            ack.route_index = popped_event.packet.route_index
             ack.route = popped_event.packet.route
-            ack.route.append(flow.dest.id)
-            ack.current_router = flow.dest
+            ack.route.append(popped_event.flow.dest.id)
+            ack.current_router = popped_event.flow.dest
 
             popped_event.link.updateBuffer(event_queue, popped_event.time +
                                         transmission, ack,
@@ -113,7 +118,7 @@ def run_simulation(event_queue, flows, links):
         elif popped_event.packet.type == 'packet':
           next_link = links[0]
           for i in range(len(links)):
-            if popped_event.current_router = popped_event.link.end_1:
+            if popped_event.packet.current_router == popped_event.link.end_1:
               if links[i].end_1 == popped_event.link.end_2 \
                 and links[i].end_2 == \
                 popped_event.link.end_2.chooseNextDest(popped_event.packet):
@@ -127,7 +132,7 @@ def run_simulation(event_queue, flows, links):
                   popped_event.packet.current_router = next_link.end_2
                   break
 
-            elif popped_event.current_router = popped_event.link.end_2:
+            elif popped_event.packet.current_router == popped_event.link.end_2:
               if links[i].end_1 == popped_event.link.end_1 \
                 and links[i].end_2 == \
                 popped_event.link.end_1.chooseNextDest(popped_event.packet):
@@ -141,38 +146,40 @@ def run_simulation(event_queue, flows, links):
                   popped_event.packet.current_router = next_link.end_2
                   break
 
-          popped_event.packet.route.append(popped_event.current_router)
-          popped_event.packet.router += 1
+          popped_event.packet.route.append \
+            (popped_event.packet.current_router.id)
+          popped_event.packet.route_index += 1
           transmission = popped_event.packet.size * 8 / \
-                         (next_link.rate * 10**6)
+                         (next_link.rate * 1000000.)
 
           next_link.updateBuffer(event_queue, popped_event.time +
                                  transmission, popped_event.packet,
                                  popped_event.flow)
 
-        else:
+        elif popped_event.packet.route_index > 0:
           next_link = links[0]
           for i in range(len(links)):
-            if links[i].end_1 == \
-            popped_event.packet.route[popped_event.packet.router - 1] \
+            if links[i].end_1.id == \
+            popped_event.packet.route[popped_event.packet.route_index - 1] \
               and (links[i].end_2 == popped_event.link.end_1 or
                    links[i].end_2 == popped_event.link.end_2):
                 next_link = links[i]
-                popped_event.packet.current_router = links[i].end_1 
+                popped_event.packet.current_router = links[i].end_2
                 break
-            elif links[i].end_2 = \
+            elif links[i].end_2.id == \
+            popped_event.packet.route[popped_event.packet.route_index - 1] \
               and (links[i].end_1 == popped_event.link.end_1 or
                    links[i].end_1 == popped_event.link.end_2):
                 next_link = links[i]
-                popped_event.packet.current_router = links[i].end_2
+                popped_event.packet.current_router = links[i].end_1
                 break
 
-          popped_event.packet.router -= 1  
+          popped_event.packet.route_index -= 1  
 
           next_link.updateBuffer(event_queue, popped_event.time +
                                  transmission, popped_event.packet,
-                                 popped_event.flow)   
-
+                                 popped_event.flow)
+  
   #verify_packets(packets)
 
 def test_0():
@@ -220,17 +227,51 @@ def test_1():
 
   flow_1 = flow(host_1, host_2, 20, 0.5)
 
-  packet_amount = (flow_1.amt * 10**6) / data_packet_size
-  packets = [0] * packet_amount
-  for i in range(packet_amount):
-    packets[i] = packet(i + 1, host_1, host_2, 'packet', data_packet_size)
-    packets[i].route.append(flow_1.src.id)
-
   links = [link_0,link_1,link_2,link_3,link_4,link_5]
   flows = [flow_1]
   
-  run_simulation(the_event_queue, flow_1, links, packets)
+  run_simulation(the_event_queue, flows, links)
+  
+def test_2():
+  the_event_queue = event_queue() 
 
+  source_1 = router('S1') 
+  source_2 = router('S2') 
+  source_3 = router('S3') 
+  dest_1 = router('T1')
+  dest_2 = router('T2')
+  dest_3 = router('T3')
+  router_1 = router('R1')
+  router_2 = router('R2')
+  router_3 = router('R3')
+  router_4 = router('R4')
+  link_0 = link(0, source_2, router_1, 12.5, 10, 128)
+  link_1 = link(1, router_1, router_2, 10, 10, 128) 
+  link_2 = link(2, router_2, router_3, 10, 10, 128) 
+  link_3 = link(3, router_3, router_4, 10, 10, 128) 
+  link_4 = link(4, router_1, source_1, 12.5, 10, 64) 
+  link_5 = link(5, dest_2, router_2, 12.5, 10, 64) 
+  link_6 = link(6, source_3, router_3, 12.5, 10, 64)
+  link_7 = link(7, dest_1, router_4, 12.5, 10, 64)
+  link_8 = link(8, dest_3, router_4, 12.5, 10, 64)
+  source_1.table = {dest_1:router_1}
+  source_2.table = {dest_2:router_1}
+  source_3.table = {dest_3:router_3}
+  router_1.table = {dest_1:router_2, dest_2:router_2}
+  router_2.table = {dest_1:router_3, dest_2:dest_2}
+  router_3.table = {dest_1:router_4, dest_3:router_4}
+  router_4.table = {dest_1:dest_1, dest_3:dest_3}
+
+  flow_1 = flow(source_1, dest_1, 35, 0.5)
+  flow_2 = flow(source_2, dest_2, 15, 10)
+  flow_3 = flow(source_3, dest_3, 30, 20)
+
+  links = [link_0, link_1, link_2, link_3, link_4,
+           link_5, link_6, link_7, link_8]
+  flows = [flow_1, flow_2, flow_3]
+  
+  run_simulation(the_event_queue, flows, links)
+  
 #test_0()
 test_1() 
-
+#test_2()
