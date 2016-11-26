@@ -1,26 +1,26 @@
 import packet
 
 class router:
-  
+
+  # This is defined globally for all instances of the router class
+  # This is a dictionary of dictionaries for each host.
+  globalTable = {}
+
   def __init__(self, id):
     self.id = id
     self.table = {}
-  
-  # This static method iterates through all the links and finds
-  # the ones that neighbor the inputted source.
-  @staticmethod
-  def getNeighborLinks(source, links):
-    neighbors = []
-    for link in links:
-      # If either end of the link is the inputted source, it is a neighbor.
-      if(link.end_2 == source or link.end_1 == source):
-        neighbors.append(link)
-    return neighbors
-    
+
+  def updateTable(self, globalTable):
+    for host in globalTable:
+      routers = globalTable[host]
+      self.table[host] = routers[self]
+
   def chooseNextDest(self, newPacket):
     dest = newPacket.destination
     nextRouter = self.table[dest]
     return nextRouter
+    
+
     
 
     
