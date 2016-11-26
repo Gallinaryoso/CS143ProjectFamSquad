@@ -6,6 +6,7 @@ from link import link
 from router import router 
 from flow import flow 
 from eventqueue import event_queue, event
+import shortestPath as sP
 
 data_packet_size = 1024 #packet size in bytes
 data_ack_size = 64 #acknowledgement size in bytes
