@@ -4,28 +4,190 @@ class event:
     def __init__(self, event_type, time, packet, link, flow):
         '''holder - we need to figure out every possible event type
         and how to deal with each specific case ''' 
-        self.event_type = event_type
-        self.time = time
-        self.packet = packet
-        self.link = link
-        self.flow = flow
-  
+        self.event_type = event_type #the type of the event
+        self.time = time #the time when event occurs
+        self.packet = packet #the packet the event is relevant for
+        self.link = link #the link the event is relevant for
+        self.flow = flow #the flow the event is relevant for
+    
+    #true if the packet has reached the destination, false otherwise
+    def reachedDestination(self):
+        return self.packet.type == 'packet' \
+          and (self.packet.current_router == self.link.end_1 
+          and self.link.end_2 == self.flow.dest) or \
+          (self.packet.current_router == self.link.end_2 
+          and self.link.end_1 == self.flow.dest)   
+    
+    #true if the acknowledgement has reached the source, false otherwise
+    def finishTrip(self):
+        return self.packet.type == 'ack' \
+          and (self.packet.current_router == self.link.end_1 
+          and self.link.end_2 == self.flow.src) or \
+          (self.packet.current_router == self.link.end_2 
+          and self.link.end_1 == self.flow.src)
+    
+    #move the packet to the next router, updating the next link and event queue
+    def routePacket(self, links, event_queue):
+        #initialize the next link where the packet should go
+        next_link = links[0]
+        
+        #iterate through all links to find the packet's next link
+        for i in range(len(links)):
+            
+            #check if the packet is currently at end 1 of its link 
+            if self.packet.current_router == self.link.end_1:
+                
+                #check if a link has end 1 at the next router for the
+                #packet and end 2 at the designated next link's other router
+                if links[i].end_1 == self.link.end_2 \
+                and links[i].end_2 == \
+                self.link.end_2.chooseNextDest(self.packet):    
+                    
+                    #set the next link and update the packet's current router
+                    next_link = links[i]
+                    self.packet.current_router = next_link.end_1
+                    break
+                
+                #check if a link has end 2 at the next router for the
+                #packet and end 1 at the designated next link's other router                
+                elif links[i].end_2 == self.link.end_2 \
+                and links[i].end_1 == \
+                self.link.end_2.chooseNextDest(self.packet):
+                    
+                    #set the next link and update the packet's current router
+                    next_link = links[i]
+                    self.packet.current_router = next_link.end_2
+                    break
+
+            #check if the packet is currently at end 2 of its link 
+            elif self.packet.current_router == self.link.end_2:
+                
+                #check if a link has end 1 at the next router for the
+                #packet and end 2 at the designated next link's other router                
+                if links[i].end_1 == self.link.end_1 \
+                and links[i].end_2 == \
+                self.link.end_1.chooseNextDest(self.packet):
+                    
+                    #set the next link and update the packet's current router
+                    next_link = links[i]
+                    self.packet.current_router = next_link.end_1
+                    break
+                
+                #check if a link has end 2 at the next router for the
+                #packet and end 1 at the designated next link's other router                 
+                elif links[i].end_2 == self.link.end_1 \
+                and links[i].end_1 == \
+                self.link.end_1.chooseNextDest(self.packet):
+                    
+                    #set the next link and update the packet's current router
+                    next_link = links[i]
+                    self.packet.current_router = next_link.end_2
+                    break
+
+        #update the route of the packet to include its next router
+        self.packet.route.append(self.packet.current_router.id)
+        self.packet.route_index += 1
+        
+        #calculate the transmission time for the packet on this new link
+        transmission = next_link.getTransmission(self.packet)
+        
+        #add the packet to the next link's buffer, updating its occupancy
+        next_link.addToBuffer(event_queue, self.time +
+                               transmission, self.packet,
+                               self.flow)  
+    
+    #move the ack to the next router, updating the next link and event queue    
+    def routeAcknowledgement(self, links, event_queue):
+        #initialize the next link where the acknowledgement should go
+        next_link = links[0]
+
+        #iterate through all links to find the ack's next link        
+        for i in range(len(links)):
+            
+            #check if the current router is at end 1 of its link
+            if self.packet.current_router == self.link.end_1:
+                
+                #check if end 1 of a link is at end 2 of the ack's link and
+                #end 2 of that link is at the ack's next link's other router
+                if links[i].end_1 == self.link.end_2 and links[i].end_2.id == \
+                self.packet.route[self.packet.route_index - 1]:  
+                    
+                    #set the next link and update the ack's current router
+                    next_link = links[i]
+                    self.packet.current_router = links[i].end_1
+                    break
+                
+                #check if end 2 of a link is at end 2 of the ack's link and
+                #end 1 of that link is at the ack's next link's other router                
+                elif links[i].end_2 == self.link.end_2 \
+                and links[i].end_1.id == \
+                self.packet.route[self.packet.route_index - 1]:
+                    
+                    #set the next link and update the ack's current router
+                    next_link = links[i]
+                    self.packet.current_router = next_link.end_2
+                    break
+                
+            #check if the current router is at end 2 of its link             
+            elif self.packet.current_router == self.link.end_2:
+                
+                #check if end 1 of a link is at end 2 of the ack's link and
+                #end 2 of that link is at the ack's next link's other router                
+                if links[i].end_1 == self.link.end_1 \
+                and links[i].end_2.id == \
+                self.packet.route[self.packet.route_index - 1]:
+                    
+                    #set the next link and update the ack's current router
+                    next_link = links[i]
+                    self.packet.current_router = next_link.end_1
+                    break
+                
+                #check if end 2 of a link is at end 2 of the ack's link and
+                #end 1 of that link is at the ack's next link's other router                
+                elif links[i].end_2 == self.link.end_1 \
+                and links[i].end_1.id == \
+                self.packet.route[self.packet.route_index - 1]:
+                    
+                    #set the next link and update the ack's current router
+                    next_link = links[i]
+                    self.packet.current_router = next_link.end_2
+                    break          
+
+        #calculate the transmission time for the ack on this new link
+        transmission = next_link.getTransmission(self.packet)
+        
+        #decrement the route index of the ack to backtrack its route
+        self.packet.route_index -= 1  
+
+        #add the ack to the next link's buffer, updating its occupancy
+        next_link.addToBuffer(event_queue, self.time +
+                               transmission, self.packet,
+                               self.flow)        
 class event_queue: 
     def __init__(self): 
         self.queue = [] 
         self.queue_size = 0 
     
+    #insert an event to the queue
     def insert_event(self, event): 
-        # event needs to be a (time, event) tuple to be sorted properly
+        #event needs to be a (time, event) tuple to be sorted properly
         heapq.heappush(self.queue, (event.time, event))  
+        
+        #increment the event queue size
         self.queue_size += 1 
     
+    #pop event from the queue
     def pop_event(self, verbose = False): 
-        if self.is_empty():
-            #empty heap means we're done 
+        
+        #empty heap means we're done
+        if self.is_empty(): 
             return -1 
+        
+        #pop from the queue and decrement the queue size
         popped = heapq.heappop(self.queue)[1]
         self.queue_size -= 1
+        
+        #if verbose, print all of the info about the popped event
         verbose = True
         if verbose: 
             print "event: " + str(popped.event_type)
@@ -41,10 +203,7 @@ class event_queue:
         
         return popped 
     
+    #if the queue is empty then return 1, otherwise return 0
     def is_empty(self):
-        # If the queue is empty, return 1
         if self.queue_size == 0:
             return 1
-           
-           
-           
