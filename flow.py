@@ -11,8 +11,8 @@ class flow:
     self.start = start # flow start time in seconds
     self.packets = [] # list of all packets needed in flow
     self.current_packet = 1 # index of packet that is next in line
-    self.occupancy = 0 #how many packets are in the buffer currently
-    self.window = 100 #the number of packets supposed flowing at this time
+    self.occupancy = 0 # how many packets are in the buffer currently
+    self.window = 100 # the number of packets supposed flowing at this time
     
   #initialize all the packets in the flow based on the data amount
   def initializePackets(self, data_packet_size):
