@@ -12,14 +12,20 @@ class flow:
     self.packets = [] # list of all packets needed in flow
     self.current_packet = 1 # index of packet that is next in line
     self.occupancy = 0 # how many packets are in the flow currently
+    self.last_propagation = -1 # the time when the previous packet propagated
+    self.flow_rate = 0 # the rate of packets going through the flow, in MB/s
     self.window = 100 # the number of packets supposed to be flowing
+    self.packet_delay = 0 # the time it took for a packet to flow, in ms
+    self.flow_rate_history = [] # the flow rate over time
+    self.window_history = [] # the window size over time
+    self.packet_delay_history = [] # the packet delay over time
     
   #initialize all the packets in the flow based on the data amount
   def initializePackets(self, data_packet_size):
     
     #get the number of packets needed based on the data amount
     packet_amount = (self.amt * 1000000) / data_packet_size
-    
+
     #fill the packets of the flow, setting the current route as just the source
     self.packets = [0] * packet_amount
     for i in range(packet_amount):
@@ -38,24 +44,26 @@ class flow:
   #add a packet to the first link based on the buffer occupancy
   def addPacket(self, event_queue, first_link, time):
     
-    #choose the next packet not in the flow
-    new_packet = self.packets[self.current_packet - 1]
-    
-    #calculate the transmission time for the first link of the new packet
-    transmission = first_link.getTransmission(new_packet)
-
-    #check whether the buffer capacity allows for the packet to be added
-    if first_link.buffer_occupancy + new_packet.size \
-      < first_link.buffer_capacity * 1000:
-      
-      #append the packet to the link buffer and increase buffer occupancy
-      first_link.buffer_occupancy += new_packet.size
-      first_link.buffer_elements.append(new_packet)
-      
-      #insert the buffering event for the new packet on the first link
-      event_queue.insert_event(event('Buffering', time + transmission,
-                                     new_packet, first_link, self))
-      
-      #update the current packet (not in the flow) and increment flow occupancy
-      self.current_packet += 1
-      self.occupancy += 1      
+    #choose the next packet not in the flow and set this packet's start time
+    if self.current_packet <= len(self.packets):
+      new_packet = self.packets[self.current_packet - 1]
+      new_packet.start_time = time
+  
+      #calculate the transmission time for the first link of the new packet
+      transmission = first_link.getTransmission(new_packet)
+  
+      #check whether the buffer capacity allows for the packet to be added
+      if first_link.buffer_occupancy + new_packet.size \
+        < first_link.buffer_capacity * 1000:
+        
+        #append the packet to the link buffer and increase buffer occupancy
+        first_link.buffer_occupancy += new_packet.size
+        first_link.buffer_elements.append(new_packet)
+        
+        #insert the buffering event for the new packet on the first link
+        event_queue.insert_event(event('Buffering', time + transmission,
+                                       new_packet, first_link, self))
+        
+        #update the current packet (not in the flow) and increment occupancy
+        self.current_packet += 1
+        self.occupancy += 1      
