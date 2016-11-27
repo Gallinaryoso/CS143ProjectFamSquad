@@ -189,7 +189,7 @@ class event_queue:
         
         #if verbose, print all of the info about the popped event
         verbose = True
-        if verbose: 
+        if verbose != 0: 
             print "event: " + str(popped.event_type)
             print "time: " + str(popped.time)
             print "packet_id: " + str(popped.packet.id)
