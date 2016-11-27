@@ -1,18 +1,24 @@
 import router
 import packet
-from eventqueue import event_queue, event 
+from eventqueue import event_queue, event
 
 class link:
   
   def __init__(self, id, end_1, end_2, rate, delay, buffer_capacity):
-    self.id = id #ID of link
-    self.end_1 = end_1 #one end of link
-    self.end_2 = end_2 #other end of link
-    self.rate = rate # link transmission rate in Mbps
-    self.delay = delay # link propagation time in ms 
+    self.id = id # ID of link
+    self.end_1 = end_1 # one end of link
+    self.end_2 = end_2 # other end of link
+    self.rate = rate # maximum link transmission rate in Mbps
+    self.delay = delay # link propagation time in ms
+    self.last_propagation = -1 # the time when the last packet propagated
+    self.current_rate = 0 # the current link rate in Mbps
     self.buffer_capacity = buffer_capacity # buffer capacity in KB
     self.buffer_occupancy = 0 # buffer occupancy in bytes
     self.buffer_elements = [] # list of packets in the buffer
+    self.packet_drops = 0 # the number of accumulated packet drops at the link
+    self.link_rate_history = [] # the link rate over time
+    self.buffer_occupancy_history = [] # the buffer occupancy over time
+    self.packet_drops_history = [] # the packet drop count over time
   
   #update link buffer by adding a packet, only if the buffer is not filled
   def addToBuffer(self, event_queue, time, packet, flow):
@@ -21,22 +27,26 @@ class link:
     if self.buffer_occupancy + packet.size \
       < self.buffer_capacity * 1000:
       
-        #add the packet to the buffer and update its occupancy and elements
-        self.buffer_occupancy += packet.size
-        self.buffer_elements.append(packet)
-        
-        #add the packet buffering event to the event queue
-        event_queue.insert_event(event('Buffering', time, packet, self, flow))
+      #set the number of packet drops to 0
+      self.packet_drops = 0
+      
+      #add the packet to the buffer and update its occupancy and elements
+      self.buffer_occupancy += packet.size
+      self.buffer_elements.append(packet)
+      
+      #add the packet buffering event to the event queue
+      event_queue.insert_event(event('Buffering', time, packet, self, flow))
         
     #if the buffer is overfilled, then the packet is dropped
     else:
+      self.packet_drops += 1
       flow.occupancy -= 1
       
   #get the transmission time for a packet based on the link rate
   def getTransmission(self, packet):
     return packet.size * 8 / (self.rate * 1000000.)  
     
-  #update all of the packet delays on a bufer when the first packet is removed
+  #update all of the packet delays on a buffer when the first packet is removed
   def updateBufferPackets(self, packet):
     
     #get transmission time of link
