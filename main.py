@@ -28,8 +28,8 @@ def startPropagating(popped_event, event_queue, links):
       popped_event.flow.last_propagation = popped_event.time
       
       #add the time point to the flow's rate history
-      popped_event.flow_rate_history.append((popped_event.time, 
-        popped_event.flow_rate))
+      popped_event.flow.flow_rate_history.append((popped_event.time, 
+        popped_event.flow.flow_rate))
       
   #add delay to relevant packets in the same link buffer when
   #the packet is transitioning from buffering to propagating
@@ -46,7 +46,7 @@ def startPropagating(popped_event, event_queue, links):
     popped_event.link.last_propagation = popped_event.time
     
     #add the time point to the link's rate history
-    popped_event.link_rate_history.append((popped_event.time, 
+    popped_event.link.link_rate_history.append((popped_event.time, 
         popped_event.link.current_rate))
   
   #insert the event of the packet propagating, adding the link delay time
@@ -174,36 +174,36 @@ def run_simulation(event_queue, flows, links):
         links[i].packet_drops))     
   
   print('Got here')
-  flowNum = 1
+  flowNum = 0
   for i in range(len(flows)):
     #graph each flow's rate over time
     x,y = zip(*flows[i].flow_rate_history)
-    newX = []
-    newY = []
-    # Save every 100th point and plot it.
-    for i in range(0, len(x), 100):
-      newX.append(x[i])
-      newY.append(y[i])
-    plt.plot(newX,newY)
-    
+    # newX = []
+    # newY = []
+    # # Save every 100th point and plot it.
+    # for i in range(0, len(x), 100):
+    #   newX.append(x[i])
+    #   newY.append(y[i])
+    # plt.plot(newX,newY)
+    plt.plot(x,y)
     plt.title('Flow Rate over Time for Flow ' + str(flowNum))
     plt.ylabel('Flow Rate')
     plt.xlabel('Time')
     plt.show()
     
-    #graph each flow's window size over time
-    plt.scatter(*zip(*flows[i].window_history))
-    plt.title('Flow Window Size over Time for Flow ' + str(flowNum))
-    plt.ylabel('Window Size')
-    plt.ylabel('Time')
-    plt.show() 
+    # #graph each flow's window size over time
+    # plt.scatter(*zip(*flows[i].window_history))
+    # plt.title('Flow Window Size over Time for Flow ' + str(flowNum))
+    # plt.ylabel('Window Size')
+    # plt.ylabel('Time')
+    # plt.show() 
     
-    #graph each flow's packet delay over time
-    plt.scatter(*zip(*flows[i].packet_delay_history))
-    plt.title('Flow Packet Delay over Time for Flow ' + str(flowNum))
-    plt.ylabel('Packet Delay')
-    plt.ylabel('Time')
-    plt.show()  
+    # #graph each flow's packet delay over time
+    # plt.scatter(*zip(*flows[i].packet_delay_history))
+    # plt.title('Flow Packet Delay over Time for Flow ' + str(flowNum))
+    # plt.ylabel('Packet Delay')
+    # plt.ylabel('Time')
+    # plt.show()  
 
     flowNum += 1
     
@@ -361,14 +361,14 @@ def test_2():
   # for key in router_3.table:
   #   print("Next Step to " + key.id + ": " + router_3.table[key].id)
   
-#   #initialize the routing tables for all routers, for now
-#   source_1.table = {dest_1:router_1}
-#   source_2.table = {dest_2:router_1}
-#   source_3.table = {dest_3:router_3}
-#   router_1.table = {dest_1:router_2, dest_2:router_2}
-#   router_2.table = {dest_1:router_3, dest_2:dest_2}
-#   router_3.table = {dest_1:router_4, dest_3:router_4}
-#   router_4.table = {dest_1:dest_1, dest_3:dest_3}
+  # #initialize the routing tables for all routers, for now
+  # source_1.table = {dest_1:router_1}
+  # source_2.table = {dest_2:router_1}
+  # source_3.table = {dest_3:router_3}
+  # router_1.table = {dest_1:router_2, dest_2:router_2}
+  # router_2.table = {dest_1:router_3, dest_2:dest_2}
+  # router_3.table = {dest_1:router_4, dest_3:router_4}
+  # router_4.table = {dest_1:dest_1, dest_3:dest_3}
 
   #create the 3 flows
   flow_1 = flow(source_1, dest_1, 35, 0.5)
@@ -384,5 +384,5 @@ def test_2():
   run_simulation(the_event_queue, flows, links)
   
 # test_0()
-test_1() 
-# test_2()
+# test_1() 
+test_2()
