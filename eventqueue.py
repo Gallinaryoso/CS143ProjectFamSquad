@@ -35,7 +35,7 @@ class event:
         for i in range(len(links)):
             
             #check if the packet is currently at end 1 of its link 
-            if self.packet.current_router == self.link.end_1:
+            if self.packet.current_router == self.link.end_1: 
                 
                 #check if a link has end 1 at the next router for the
                 #packet and end 2 at the designated next link's other router
