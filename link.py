@@ -30,12 +30,31 @@ class link:
       #set the number of packet drops to 0
       self.packet_drops = 0
       
+      #calculate the transmission time for the ack on this new link
+      transmission = self.getTransmission(packet)
+      
+      #if there is delay from other packets in the buffer, delay this packet
+      if len(self.buffer_elements) > 0 and time < \
+         self.buffer_elements[len(self.buffer_elements) - 1].current_time: 
+        
+        #update the current time of the packet with delay in the buffer
+        packet.current_time = self.buffer_elements[len(self.buffer_elements) \
+          - 1].current_time
+        
+        #insert the buffering event for the new packet on the first link
+        event_queue.insert_event(event('Buffering', packet.current_time, \
+                                       packet, self, flow))
+      else:
+        #update the current time of the packet
+        packet.current_time = time + transmission
+        
+        #add the packet buffering event to the event queue
+        event_queue.insert_event(event('Buffering', time + transmission, \
+                                       packet, self, flow))
+        
       #add the packet to the buffer and update its occupancy and elements
       self.buffer_occupancy += packet.size
-      self.buffer_elements.append(packet)
-      
-      #add the packet buffering event to the event queue
-      event_queue.insert_event(event('Buffering', time, packet, self, flow))
+      self.buffer_elements.append(packet)      
         
     #if the buffer is overfilled, then the packet is dropped
     else:
@@ -62,6 +81,9 @@ class link:
     #add packet delays, equal to the removed packet's propagation, if the  
     #half-duplex link has the next packet going the opposite direction
     for i in range(len(self.buffer_elements)):
-      self.buffer_elements[i].delay += transmission
-      if switch != 0:
-        self.buffer_elements[i].delay += self.delay / 1000.  
+      if self.buffer_elements[i].current_time \
+        < packet.current_time + transmission:
+        self.buffer_elements[i].current_time += transmission
+      if switch != 0 and self.buffer_elements[i] < packet.current_time \
+        + self.delay/1000.:
+        self.buffer_elements[i].current_time += self.delay / 1000.  
