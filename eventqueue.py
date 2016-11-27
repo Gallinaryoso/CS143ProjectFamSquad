@@ -35,7 +35,7 @@ class event:
         for i in range(len(links)):
             
             #check if the packet is currently at end 1 of its link 
-            if self.packet.current_router == self.link.end_1: 
+            if self.packet.current_router == self.link.end_1:
                 
                 #check if a link has end 1 at the next router for the
                 #packet and end 2 at the designated next link's other router
@@ -152,17 +152,12 @@ class event:
                     next_link = links[i]
                     self.packet.current_router = next_link.end_2
                     break          
-
-        #calculate the transmission time for the ack on this new link
-        transmission = next_link.getTransmission(self.packet)
         
         #decrement the route index of the ack to backtrack its route
         self.packet.route_index -= 1  
 
         #add the ack to the next link's buffer, updating its occupancy
-        next_link.addToBuffer(event_queue, self.time +
-                               transmission, self.packet,
-                               self.flow)        
+        next_link.addToBuffer(event_queue, self.time, self.packet, self.flow)        
 class event_queue: 
     def __init__(self): 
         self.queue = [] 
