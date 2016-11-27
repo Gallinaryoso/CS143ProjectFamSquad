@@ -1,4 +1,3 @@
-
 class packet:
   
   def __init__(self, id, src, dest, type, size, current_router):
@@ -11,4 +10,4 @@ class packet:
     self.delay = 0 #delay due to congestion from a particular link
     self.route = [] #route that a packet has traveled already
     self.route_index = 0 #index of route array where packet/ack is
-    #self.arrived_at_dest = -1
+    self.start_time = -1 #when the packet started buffering in the flow
