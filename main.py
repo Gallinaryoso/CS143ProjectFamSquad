@@ -86,6 +86,7 @@ def run_simulation(event_queue, flows, links):
                                popped_event.packet, popped_event.link, 
                                popped_event.flow))
       popped_event.packet.delay = 0
+      continue
       
     #perform the transition from buffering to propagating
     elif popped_event.event_type == 'Buffering':
