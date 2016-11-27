@@ -4,8 +4,8 @@ import test
 from router import router 
 from flow import flow 
 from eventqueue import event_queue, event
-import shortestPath as sP
-import matplotlib.pyplot as plt
+#import shortestPath as sP
+#import matplotlib.pyplot as plt
 
 data_packet_size = 1024 #packet size in bytes
 data_ack_size = 64 #acknowledgement size in bytes
@@ -49,6 +49,9 @@ def startPropagating(popped_event, event_queue, links):
     popped_event.link.link_rate_history.append((popped_event.time, 
         popped_event.link.current_rate))
   
+  #update the current time of the packet
+  popped_event.packet.current_time += popped_event.link.delay / 1000.
+  
   #insert the event of the packet propagating, adding the link delay time
   event_queue.insert_event(event('Propagating', popped_event.time +
                                  popped_event.link.delay / 1000., 
@@ -88,12 +91,11 @@ def run_simulation(event_queue, flows, links):
     popped_event = event_queue.pop_event()
     #if there is congestion time for the popped packet, insert back into the
     #queue with the updated time and initialize packet delay back to 0
-    if popped_event.packet.delay > 0:
+    if popped_event.packet.current_time != popped_event.time:
       event_queue.insert_event(event(popped_event.event_type, 
-                               popped_event.time + popped_event.packet.delay, 
+                               popped_event.packet.current_time, 
                                popped_event.packet, popped_event.link, 
                                popped_event.flow))
-      popped_event.packet.delay = 0
       continue
       
     #perform the transition from buffering to propagating
