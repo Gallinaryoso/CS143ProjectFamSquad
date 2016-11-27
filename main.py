@@ -27,6 +27,10 @@ def startPropagating(popped_event, event_queue, links):
         ((popped_event.time - popped_event.flow.last_propagation) * 1000000.)
       popped_event.flow.last_propagation = popped_event.time
       
+      #add the time point to the flow's rate history
+      popped_event.flow_rate_history.append((popped_event.time, 
+        popped_event.flow_rate))
+      
   #add delay to relevant packets in the same link buffer when
   #the packet is transitioning from buffering to propagating
   popped_event.link.updateBufferPackets(popped_event.packet)
@@ -39,7 +43,11 @@ def startPropagating(popped_event, event_queue, links):
   else:
     popped_event.link.current_rate = 8 * popped_event.packet.size / \
       ((popped_event.time - popped_event.link.last_propagation) * 1000000.)
-    popped_event.link.last_propagation = popped_event.time    
+    popped_event.link.last_propagation = popped_event.time
+    
+    #add the time point to the link's rate history
+    popped_event.link_rate_history.append((popped_event.time, 
+        popped_event.link.current_rate))
   
   #insert the event of the packet propagating, adding the link delay time
   event_queue.insert_event(event('Propagating', popped_event.time +
@@ -101,6 +109,10 @@ def run_simulation(event_queue, flows, links):
           popped_event.flow.packet_delay = (popped_event.time \
             - popped_event.packet.start_time) * 1000
           
+          #add the time point to the flow's packet delay history
+          popped_event.flow.packet_delay_history.append((popped_event.time, 
+            popped_event.flow.packet_delay)) 
+          
           #decrement the flow occupancy after packet finishes
           popped_event.flow.occupancy -= 1
           
@@ -153,21 +165,9 @@ def run_simulation(event_queue, flows, links):
         popped_event.packet.route_index > 0:
         #route the acknowledgement and update the event queue
         popped_event.routeAcknowledgement(links, event_queue)
- 
-    #get more time points for each flow's rate, window, and packet delay       
-    for i in range(len(flows)):
-      flows[i].flow_rate_history.append((popped_event.time, 
-        flows[i].flow_rate))
-      flows[i].window_history.append((popped_event.time, 
-        flows[i].window))
-      flows[i].packet_delay_history.append((popped_event.time, 
-        flows[i].packet_delay)) 
     
-    #get more time points for each link's rate, occupancy, and packet drops
+    #get more time points for each link's occupancy and packet drops
     for i in range(len(links)):
-      #get more time points for each flow's rate, window, and packet delay
-      links[i].link_rate_history.append((popped_event.time, 
-        links[i].current_rate))
       links[i].buffer_occupancy_history.append((popped_event.time, 
         links[i].buffer_occupancy))
       links[i].packet_drops_history.append((popped_event.time, 
