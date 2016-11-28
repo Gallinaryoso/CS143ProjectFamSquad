@@ -167,52 +167,50 @@ def run_simulation(event_queue, flows, links):
   for i in range(len(flows)):
     #graph each flow's rate over time
     x,y = zip(*flows[i].flow_rate_history)
-    # newX = []
-    # newY = []
-    # # Save every 100th point and plot it.
-    # for i in range(0, len(x), 100):
-    #   newX.append(x[i])
-    #   newY.append(y[i])
-    # plt.plot(newX,newY)
     plt.plot(x,y)
     plt.title('Flow Rate over Time for Flow ' + str(flowNum))
     plt.ylabel('Flow Rate')
     plt.xlabel('Time')
     plt.show()
     
-    # #graph each flow's window size over time
-    # plt.scatter(*zip(*flows[i].window_history))
-    # plt.title('Flow Window Size over Time for Flow ' + str(flowNum))
-    # plt.ylabel('Window Size')
-    # plt.ylabel('Time')
-    # plt.show() 
+    #graph each flow's window size over time
+    x,y = zip(*flows[i].window_history)
+    plt.plot(x, y)
+    plt.title('Flow Window Size over Time for Flow ' + str(flowNum))
+    plt.ylabel('Window Size')
+    plt.ylabel('Time')
+    plt.show() 
     
-    # #graph each flow's packet delay over time
-    # plt.scatter(*zip(*flows[i].packet_delay_history))
-    # plt.title('Flow Packet Delay over Time for Flow ' + str(flowNum))
-    # plt.ylabel('Packet Delay')
-    # plt.ylabel('Time')
-    # plt.show()  
+    #graph each flow's packet delay over time
+    x,y = zip(*flows[i].packet_delay_history)
+    plt.plot(x, y)
+    plt.title('Flow Packet Delay over Time for Flow ' + str(flowNum))
+    plt.ylabel('Packet Delay')
+    plt.ylabel('Time')
+    plt.show()  
 
     flowNum += 1
     
   for i in range(len(links)):
     #graph each link's rate over time
-    plt.scatter(*zip(*links[i].link_rate_history))
+    x, y = zip(*links[i].link_rate_history)
+    plt.plot(x,y)
     plt.title('Link Rate over Time for Link ' + str(links[i].id))
     plt.ylabel('Link Rate')
     plt.xlabel('Time')
     plt.show()
     
     #graph each link's buffer occupancy over time
-    plt.scatter(*zip(*links[i].buffer_occupancy_history))
+    x, y = zip(*links[i].buffer_occupancy_history)
+    plt.plot(x,y)
     plt.title('Link Buffer Occupancy over Time for Link ' + str(links[i].id))
     plt.ylabel('Buffer Occupancy')
     plt.xlabel('Time')
     plt.show() 
     
     #graph each link's packet drop count over time
-    plt.scatter(*zip(*links[i].packet_drops_history))
+    x, y = zip(*links[i].packet_drops_history)
+    plt.plot(x,Y)
     plt.title('Link Packet Drop Count over Time for Link ' + str(links[i].id))
     plt.ylabel('Packet Drop Count')
     plt.ylabel('Time')
@@ -374,4 +372,4 @@ def test_2():
   
 # test_0()
 test_1() 
-#test_2()
+# test_2()
