@@ -31,7 +31,7 @@ class flow:
     for i in range(packet_amount):
       self.packets[i] = packet(i + 1, self.src, self.dest, 'packet',
                               data_packet_size, self.src)
-      self.packets[i].route.append(self.src.id)  
+      self.packets[i].route.append(self.src.id)   
       
   #get the first link of the flow, choosing from a list of links
   def findFirstLink(self, links): 
