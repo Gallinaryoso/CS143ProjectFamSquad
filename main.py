@@ -13,7 +13,7 @@ data_ack_size = 64 #acknowledgement size in bytes
 #begin propagating a particular packet after buffering ends,
 #updating the event time to be when progagation ends
 def startPropagating(popped_event, event_queue, links):
-  
+
   #update the flow rate when there is propagation in the flow's initial link
   if popped_event.link == popped_event.flow.findFirstLink(links):
     
@@ -30,7 +30,7 @@ def startPropagating(popped_event, event_queue, links):
       #add the time point to the flow's rate history
       popped_event.flow.flow_rate_history.append((popped_event.time, 
         popped_event.flow.flow_rate))
-      
+   
   #add delay to relevant packets in the same link buffer when
   #the packet is transitioning from buffering to propagating
   popped_event.link.updateBufferPackets(popped_event.packet)
@@ -40,7 +40,7 @@ def startPropagating(popped_event, event_queue, links):
     popped_event.link.last_propagation = popped_event.time
         
   #else calculate the flow's rate and update the last propagation time
-  else:
+  else: 
     popped_event.link.current_rate = 8 * popped_event.packet.size / \
       ((popped_event.time - popped_event.link.last_propagation) * 1000000.)
     popped_event.link.last_propagation = popped_event.time
@@ -53,8 +53,7 @@ def startPropagating(popped_event, event_queue, links):
   popped_event.packet.current_time += popped_event.link.delay / 1000.
   
   #insert the event of the packet propagating, adding the link delay time
-  event_queue.insert_event(event('Propagating', popped_event.time +
-                                 popped_event.link.delay / 1000., 
+  event_queue.insert_event(event('Propagating',popped_event.packet.current_time, 
                                  popped_event.packet, popped_event.link,
                                  popped_event.flow))
   
@@ -87,18 +86,19 @@ def run_simulation(event_queue, flows, links):
       
   #iterate through all packets, using the same sequential events in the queue
   while not event_queue.is_empty():
+
     #get event after popping from queue
-    popped_event = event_queue.pop_event()
-  
+    popped_event = event_queue.pop_event()   
+    
     #perform the transition from buffering to propagating
     if popped_event.event_type == 'Buffering':
       startPropagating(popped_event, event_queue, links)
-      
+
     #perform the transition from propagating to buffering
     else:
       #check whether the acknowledgment has returned to the source for a packet
       if popped_event.finishTrip() != 0:
-          
+        
           #update the packet delay for the flow when the RTT is finished
           popped_event.flow.packet_delay = (popped_event.time \
             - popped_event.packet.start_time) * 1000
@@ -109,7 +109,7 @@ def run_simulation(event_queue, flows, links):
           
           #decrement the flow occupancy after packet finishes
           popped_event.flow.occupancy -= 1
-          
+        
           #if the last packet finishes, skip to the next event on queue
           if (popped_event.flow.current_packet 
               == len(popped_event.flow.packets) + 1):
@@ -118,14 +118,17 @@ def run_simulation(event_queue, flows, links):
           #get the first link of the flow to potentially add packets to
           first_link = popped_event.flow.findFirstLink(links)
           
+          first_link_filled = 1
           #while the occupancy has not reached the window, add packets to 
           #the first link if the link capacity is not met
-          while popped_event.flow.occupancy < popped_event.flow.window:        
-            popped_event.flow.addPacket(event_queue, first_link, 
-                                        popped_event.time)       
-           
+          while popped_event.flow.occupancy < \
+                popped_event.flow.window and first_link_filled != 0:        
+            first_link_filled = popped_event.flow.addPacket(event_queue,  
+                                        first_link, popped_event.time)        
+         
       #check whether the packet has reached its destination
       elif popped_event.reachedDestination() != 0:
+
         #create an acknowledgement packet based on the popped packet's info
         ack = packet(popped_event.packet.id, popped_event.flow.src, 
                      popped_event.flow.dest, 'ack', data_ack_size, 
@@ -139,7 +142,7 @@ def run_simulation(event_queue, flows, links):
         
         #make sure the start time of this ack is the corresponding packet's
         ack.start_time = popped_event.packet.start_time
-        
+
         #add the buffering event of the new acknowledgement to the queue
         popped_event.link.addToBuffer(event_queue, popped_event.time, ack,
                                     popped_event.flow)
