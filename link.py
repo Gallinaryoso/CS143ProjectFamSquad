@@ -36,7 +36,7 @@ class link:
       #if there is delay from other packets in the buffer, delay this packet
       if len(self.buffer_elements) > 0:
         
-        #get the last packet on the first link's buffer
+        #get the last packet on the first link's buffer 
         last = self.buffer_elements[len(self.buffer_elements) - 1]
         
         #check whether there is half-duplex congestion
