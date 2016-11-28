@@ -92,8 +92,7 @@ class event:
         transmission = next_link.getTransmission(self.packet)
         
         #add the packet to the next link's buffer, updating its occupancy
-        next_link.addToBuffer(event_queue, self.time +
-                               transmission, self.packet,
+        next_link.addToBuffer(event_queue, self.time, self.packet,
                                self.flow)  
     
     #move the ack to the next router, updating the next link and event queue    
@@ -157,7 +156,8 @@ class event:
         self.packet.route_index -= 1  
 
         #add the ack to the next link's buffer, updating its occupancy
-        next_link.addToBuffer(event_queue, self.time, self.packet, self.flow)        
+        next_link.addToBuffer(event_queue, self.time, self.packet, self.flow)  
+        
 class event_queue: 
     def __init__(self): 
         self.queue = [] 
