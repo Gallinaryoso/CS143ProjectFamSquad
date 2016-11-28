@@ -4,8 +4,8 @@ import test
 from router import router 
 from flow import flow 
 from eventqueue import event_queue, event
-#import shortestPath as sP
-#import matplotlib.pyplot as plt
+import shortestPath as sP
+import matplotlib.pyplot as plt
 
 data_packet_size = 1024 #packet size in bytes
 data_ack_size = 64 #acknowledgement size in bytes
@@ -89,17 +89,9 @@ def run_simulation(event_queue, flows, links):
   while not event_queue.is_empty():
     #get event after popping from queue
     popped_event = event_queue.pop_event()
-    #if there is congestion time for the popped packet, insert back into the
-    #queue with the updated time and initialize packet delay back to 0
-    if popped_event.packet.current_time != popped_event.time:
-      event_queue.insert_event(event(popped_event.event_type, 
-                               popped_event.packet.current_time, 
-                               popped_event.packet, popped_event.link, 
-                               popped_event.flow))
-      continue
-      
+  
     #perform the transition from buffering to propagating
-    elif popped_event.event_type == 'Buffering':
+    if popped_event.event_type == 'Buffering':
       startPropagating(popped_event, event_queue, links)
       
     #perform the transition from propagating to buffering
@@ -134,7 +126,6 @@ def run_simulation(event_queue, flows, links):
            
       #check whether the packet has reached its destination
       elif popped_event.reachedDestination() != 0:
-        
         #create an acknowledgement packet based on the popped packet's info
         ack = packet(popped_event.packet.id, popped_event.flow.src, 
                      popped_event.flow.dest, 'ack', data_ack_size, 
@@ -148,13 +139,9 @@ def run_simulation(event_queue, flows, links):
         
         #make sure the start time of this ack is the corresponding packet's
         ack.start_time = popped_event.packet.start_time
-
-        #calculate the transmission time of the acknowledgement to the event
-        transmission = popped_event.link.getTransmission(ack)
         
         #add the buffering event of the new acknowledgement to the queue
-        popped_event.link.addToBuffer(event_queue, popped_event.time +
-                                    transmission, ack,
+        popped_event.link.addToBuffer(event_queue, popped_event.time, ack,
                                     popped_event.flow)
 
       #check if the packet is a packet routing in the middle of the flow
@@ -173,8 +160,8 @@ def run_simulation(event_queue, flows, links):
       links[i].buffer_occupancy_history.append((popped_event.time, 
         links[i].buffer_occupancy))
       links[i].packet_drops_history.append((popped_event.time, 
-        links[i].packet_drops))     
-  
+        links[i].packet_drops))   
+    
   print('Got here')
   flowNum = 0
   for i in range(len(flows)):
@@ -386,5 +373,5 @@ def test_2():
   run_simulation(the_event_queue, flows, links)
   
 # test_0()
-# test_1() 
-test_2()
+test_1() 
+#test_2()
