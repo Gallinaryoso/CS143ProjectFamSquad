@@ -1,4 +1,4 @@
-from eventqueue import event_queue, event
+\from eventqueue import event_queue, event
 from packet import packet
 from link import link
 
@@ -14,7 +14,7 @@ class flow:
     self.occupancy = 0 # how many packets are in the flow currently
     self.last_propagation = -1 # the time when the previous packet propagated
     self.flow_rate = 0 # the rate of packets going through the flow, in MB/s
-    self.window = 100 # the number of packets supposed to be flowing
+    self.window = 50 # the number of packets supposed to be flowing
     self.packet_delay = 0 # the time it took for a packet to flow, in ms
     self.flow_rate_history = [] # the flow rate over time
     self.window_history = [] # the window size over time
@@ -25,16 +25,16 @@ class flow:
     
     #get the number of packets needed based on the data amount
     packet_amount = (self.amt * 1000000) / data_packet_size
-    
+
     #fill the packets of the flow, setting the current route as just the source
     self.packets = [0] * packet_amount
     for i in range(packet_amount):
       self.packets[i] = packet(i + 1, self.src, self.dest, 'packet',
                               data_packet_size, self.src)
-      self.packets[i].route.append(self.src.id)   
+      self.packets[i].route.append(self.src.id)  
       
   #get the first link of the flow, choosing from a list of links
-  def findFirstLink(self, links): 
+  def findFirstLink(self, links):
     
     #iterate through all links, with one link having one end as the flow source
     for i in range(len(links)):
@@ -100,4 +100,15 @@ class flow:
         
         #update the current packet (not in the flow) and increment occupancy
         self.current_packet += 1
-        self.occupancy += 1      
+        self.occupancy += 1  
+        
+        #return 1 to indicate that a packet was added to the buffer
+        return 1
+      
+      #return 0 to indicate that the buffer was too full to add a packet
+      else:
+        return 0
+      
+    #return 0 to indicate that there are no more packets for the flow
+    else:
+      return 0
