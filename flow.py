@@ -34,7 +34,7 @@ class flow:
       self.packets[i].route.append(self.src.id)  
       
   #get the first link of the flow, choosing from a list of links
-  def findFirstLink(self, links):
+  def findFirstLink(self, links): 
     
     #iterate through all links, with one link having one end as the flow source
     for i in range(len(links)):
