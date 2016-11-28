@@ -22,6 +22,7 @@ class link:
   
   #update link buffer by adding a packet, only if the buffer is not filled
   def addToBuffer(self, event_queue, time, packet, flow):
+
     
     #check if the next packet wil not overfill the link buffer
     if self.buffer_occupancy + packet.size \
@@ -36,7 +37,7 @@ class link:
       #if there is delay from other packets in the buffer, delay this packet
       if len(self.buffer_elements) > 0:
         
-        #get the last packet on the first link's buffer 
+        #get the last packet on the first link's buffer
         last = self.buffer_elements[len(self.buffer_elements) - 1]
         
         #check whether there is half-duplex congestion
