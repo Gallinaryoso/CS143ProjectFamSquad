@@ -1,4 +1,4 @@
-\from eventqueue import event_queue, event
+from eventqueue import event_queue, event
 from packet import packet
 from link import link
 
