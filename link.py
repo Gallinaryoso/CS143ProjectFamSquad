@@ -30,27 +30,43 @@ class link:
       #set the number of packet drops to 0
       self.packet_drops = 0
       
-      #calculate the transmission time for the ack on this new link
+      #calculate the transmission time for the packet on this new link
       transmission = self.getTransmission(packet)
       
       #if there is delay from other packets in the buffer, delay this packet
-      if len(self.buffer_elements) > 0 and time < \
-         self.buffer_elements[len(self.buffer_elements) - 1].current_time: 
+      if len(self.buffer_elements) > 0:
         
-        #update the current time of the packet with delay in the buffer
-        packet.current_time = self.buffer_elements[len(self.buffer_elements) \
-          - 1].current_time
+        #get the last packet on the first link's buffer
+        last = self.buffer_elements[len(self.buffer_elements) - 1]
         
-        #insert the buffering event for the new packet on the first link
-        event_queue.insert_event(event('Buffering', packet.current_time, \
-                                       packet, self, flow))
+        #check whether there is half-duplex congestion
+        switch = last.current_router != packet.current_router          
+        
+        #if there is no half-duplex congestion, add transmission accordingly
+        if switch == 0:
+          if time < last.current_time:
+            #set the current time of the new packet with link congestion
+            packet.current_time = last.current_time + transmission             
+          else:
+            #set the current time of the new packet without link congestion
+            packet.current_time = time + transmission
+          
+        #if there is half-duplex congestion, also add propagation accordingly
+        else:
+          if time < last.current_time:
+            #set the current time of the new packet with link congestion
+            packet.current_time = last.current_time + transmission + \
+              self.rate / 1000.
+          else:
+            #set the current time of the new packet without link congestion
+            packet.current_time = time + transmission
+        
       else:
-        #update the current time of the packet
         packet.current_time = time + transmission
-        
-        #add the packet buffering event to the event queue
-        event_queue.insert_event(event('Buffering', time + transmission, \
-                                       packet, self, flow))
+      
+      #insert the buffering event for the new packet on the first link
+      event_queue.insert_event(event('Buffering', packet.current_time,
+                                     packet, self, flow))      
         
       #add the packet to the buffer and update its occupancy and elements
       self.buffer_occupancy += packet.size
@@ -68,22 +84,6 @@ class link:
   #update all of the packet delays on a buffer when the first packet is removed
   def updateBufferPackets(self, packet):
     
-    #get transmission time of link
-    transmission = self.getTransmission(packet)
-    
-    #whether there the next link packet is at another router
-    switch = self.buffer_elements[0].current_router != packet.current_router
-    
     #remove the packet from the buffer, updating the buffer occupancy
     self.buffer_elements.remove(packet)
     self.buffer_occupancy -= packet.size
-    
-    #add packet delays, equal to the removed packet's propagation, if the  
-    #half-duplex link has the next packet going the opposite direction
-    for i in range(len(self.buffer_elements)):
-      if self.buffer_elements[i].current_time \
-        < packet.current_time + transmission:
-        self.buffer_elements[i].current_time += transmission
-      if switch != 0 and self.buffer_elements[i] < packet.current_time \
-        + self.delay/1000.:
-        self.buffer_elements[i].current_time += self.delay / 1000.  
