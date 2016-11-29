@@ -72,12 +72,15 @@ class link:
       #add the packet to the buffer and update its occupancy and elements
       self.buffer_occupancy += packet.size
       self.buffer_elements.append(packet)   
-      flow.window += 1    
+      if flow.con_ctrl == 1: 
+        flow.window += 1    
         
     #if the buffer is overfilled, then the packet is dropped
     else:
       self.packet_drops += 1
-      flow.window /= 2 
+      if flow.con_ctrl == 1: 
+        flow.window /= 2 
+
       flow.occupancy -= 1
       
   #get the transmission time for a packet based on the link rate

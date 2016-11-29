@@ -235,7 +235,7 @@ def run_simulation(event_queue, flows, links, con_ctrl):
     plt.ylabel('Time')
     plt.show()    
 
-def test_0():
+def test_0(con_ctrl):
   
   #initialize event queue as empty
   the_event_queue = event_queue()
@@ -248,16 +248,16 @@ def test_0():
   link_1 = link(1, host_1, host_2, 10, 10, 64) 
   
   #create the one flow
-  flow_1 = flow(host_1, host_2, 20, 1)
+  flow_1 = flow(host_1, host_2, 20, 1, con_ctrl)
     
   #create arrays for links and flows
   links = [link_1]
   flows = [flow_1]
     
   #simulate all of the events on the event queue with input flows and links
-  run_simulation(the_event_queue, flows, links, 0)
+  run_simulation(the_event_queue, flows, links, con_ctrl)
 
-def test_1():
+def test_1(con_ctrl):
   #initialize the event queue
   the_event_queue = event_queue() 
 
@@ -306,16 +306,16 @@ def test_1():
   #   print("Next Step to " + key.id + ": " + host_1.table[key].id)
   
   #create the one flow
-  flow_1 = flow(host_1, host_2, 20, 0.5)
+  flow_1 = flow(host_1, host_2, 20, 0.5, con_ctrl)
 
   #make arrays for the links and flows
   links = [link_0,link_1,link_2,link_3,link_4,link_5]
   flows = [flow_1]
   
   #simulate all of the events on the event queue with input flows and links
-  run_simulation(the_event_queue, flows, links, 0)
+  run_simulation(the_event_queue, flows, links, con_ctrl)
   
-def test_2():
+def test_2(con_ctrl):
   #initialize the event queue
   the_event_queue = event_queue() 
 
@@ -377,9 +377,9 @@ def test_2():
   router_4.table = {dest_1: [0, dest_1], dest_3: [0, dest_3]}
 
   #create the 3 flows
-  flow_1 = flow(source_1, dest_1, 35, 0.5)
-  flow_2 = flow(source_2, dest_2, 15, 10)
-  flow_3 = flow(source_3, dest_3, 30, 20)
+  flow_1 = flow(source_1, dest_1, 35, 0.5, con_ctrl)
+  flow_2 = flow(source_2, dest_2, 15, 10, con_ctrl)
+  flow_3 = flow(source_3, dest_3, 30, 20, con_ctrl)
 
   #create arrays for the links and flows
   links = [link_0, link_1, link_2, link_3, link_4,
@@ -387,8 +387,5 @@ def test_2():
   flows = [flow_1, flow_2, flow_3]
   
   #simulate all of the events on the event queue with input flows and links
-  run_simulation(the_event_queue, flows, links, 0)
+  run_simulation(the_event_queue, flows, links, con_ctrl)
   
-# test_0()
-test_1() 
-# test_2()

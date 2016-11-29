@@ -4,7 +4,7 @@ from link import link
 
 class flow:
   
-  def __init__(self, src, dest, dataAMT, start):
+  def __init__(self, src, dest, dataAMT, start, con_ctrl):
     self.src = src # source host of flow
     self.dest = dest # destination host of flow
     self.amt = dataAMT # amount of data in MB
@@ -19,6 +19,7 @@ class flow:
     self.flow_rate_history = [] # the flow rate over time
     self.window_history = [] # the window size over time
     self.packet_delay_history = [] # the packet delay over time
+    self.con_ctrl = con_ctrl
     
   #initialize all the packets in the flow based on the data amount
   def initializePackets(self, data_packet_size):
