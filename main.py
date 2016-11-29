@@ -229,7 +229,7 @@ def run_simulation(event_queue, flows, links, con_ctrl):
     
     #graph each link's packet drop count over time
     x, y = zip(*links[i].packet_drops_history)
-    plt.plot(x,Y)
+    plt.plot(x,y)
     plt.title('Link Packet Drop Count over Time for Link ' + str(links[i].id))
     plt.ylabel('Packet Drop Count')
     plt.ylabel('Time')

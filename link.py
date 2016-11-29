@@ -72,6 +72,7 @@ class link:
       #add the packet to the buffer and update its occupancy and elements
       self.buffer_occupancy += packet.size
       self.buffer_elements.append(packet)   
+
       if flow.con_ctrl == 1: 
         flow.window += 1    
         
@@ -82,6 +83,8 @@ class link:
         flow.window /= 2 
 
       flow.occupancy -= 1
+
+    flow.window_history.append((time, flow.window))
       
   #get the transmission time for a packet based on the link rate
   def getTransmission(self, packet):
