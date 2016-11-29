@@ -46,7 +46,7 @@ def minimizeDict(hostDict):
   for router in hostDict:
     paths = hostDict[router]
     bestPath = findMinimumPath(paths)
-    hostDict[router] = bestPath[len(bestPath) - 1]
+    hostDict[router] = [bestPath[0], bestPath[len(bestPath) - 1]]
 
 # This function fills up the dictionary with all the paths for every router
 
