@@ -235,10 +235,10 @@ def run_simulation(event_queue, flows, links, con_ctrl):
     plt.ylabel('Time')
     plt.show()    
 
-def test_0(con_ctrl):
+def test_0(con_ctrl, verbose):
   
   #initialize event queue as empty
-  the_event_queue = event_queue()
+  the_event_queue = event_queue(verbose)
   
   #initialize the only two hosts as routers
   host_1 = router('H1') 
@@ -257,9 +257,9 @@ def test_0(con_ctrl):
   #simulate all of the events on the event queue with input flows and links
   run_simulation(the_event_queue, flows, links, con_ctrl)
 
-def test_1(con_ctrl):
+def test_1(con_ctrl, verbose):
   #initialize the event queue
-  the_event_queue = event_queue() 
+  the_event_queue = event_queue(verbose) 
 
   #initialize the two hosts as routers
   host_1 = router('H1') 
@@ -315,9 +315,9 @@ def test_1(con_ctrl):
   #simulate all of the events on the event queue with input flows and links
   run_simulation(the_event_queue, flows, links, con_ctrl)
   
-def test_2(con_ctrl):
+def test_2(con_ctrl, verbose):
   #initialize the event queue
-  the_event_queue = event_queue() 
+  the_event_queue = event_queue(verbose) 
 
   #initialize the 3 sources and 3 destinations (hosts)
   source_1 = router('S1') 

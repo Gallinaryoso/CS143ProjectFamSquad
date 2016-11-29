@@ -208,9 +208,10 @@ class event:
                 next_link.addToBuffer(event_queue, time, packet, flow)  
 
 class event_queue: 
-    def __init__(self): 
+    def __init__(self, verbose): 
         self.queue = [] 
         self.queue_size = 0 
+        self.verbose = verbose
     
     #insert an event to the queue
     def insert_event(self, event): 
@@ -221,7 +222,7 @@ class event_queue:
         self.queue_size += 1 
     
     #pop event from the queue
-    def pop_event(self, verbose = False): 
+    def pop_event(self): 
         
         #empty heap means we're done
         if self.is_empty(): 
@@ -232,8 +233,7 @@ class event_queue:
         self.queue_size -= 1
         
         #if verbose, print all of the info about the popped event
-        verbose = True
-        if verbose != 0: 
+        if self.verbose != 0: 
             print "event: " + str(popped.event_type)
             print "time: " + str(popped.time)
             print "packet_id: " + str(popped.packet.id)
