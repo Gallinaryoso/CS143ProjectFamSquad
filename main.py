@@ -1,6 +1,6 @@
 from packet import packet 
 from link import link
-import test 
+# import test 
 from router import router 
 from flow import flow 
 from eventqueue import event_queue, event
@@ -63,7 +63,7 @@ def startPropagating(popped_event, event_queue, links):
     popped_event.flow.addPacket(event_queue, first_link, popped_event.time)
   
 #run through the simulation by looking at each event in the event queue
-def run_simulation(event_queue, flows, links):
+def run_simulation(event_queue, flows, links, con_ctrl):
   
   #get sample router to start sending packets from to compute shortest path
   #sample_router = flow[0].src
@@ -255,7 +255,7 @@ def test_0():
   flows = [flow_1]
     
   #simulate all of the events on the event queue with input flows and links
-  run_simulation(the_event_queue, flows, links)
+  run_simulation(the_event_queue, flows, links, 0)
 
 def test_1():
   #initialize the event queue
@@ -313,7 +313,7 @@ def test_1():
   flows = [flow_1]
   
   #simulate all of the events on the event queue with input flows and links
-  run_simulation(the_event_queue, flows, links)
+  run_simulation(the_event_queue, flows, links, 0)
   
 def test_2():
   #initialize the event queue
@@ -387,7 +387,7 @@ def test_2():
   flows = [flow_1, flow_2, flow_3]
   
   #simulate all of the events on the event queue with input flows and links
-  run_simulation(the_event_queue, flows, links)
+  run_simulation(the_event_queue, flows, links, 0)
   
 # test_0()
 test_1() 
