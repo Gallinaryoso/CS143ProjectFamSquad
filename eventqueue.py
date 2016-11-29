@@ -26,6 +26,13 @@ class event:
           and self.link.end_2 == self.flow.src) or \
           (self.packet.current_router == self.link.end_2 
           and self.link.end_1 == self.flow.src)
+
+    def messageReceived(self):
+        return self.packet.type == 'message' \
+            and (self.packet.current_router == self.link.end_1
+                and self.link.end_2 == self.packet.destination) or \
+            (self.packet.current_router == self.link.end_2
+                and self.link.end_1 == self.packet.destination)
     
     #move the packet to the next router, updating the next link and event queue
     def routePacket(self, links, event_queue):
