@@ -147,6 +147,17 @@ def run_simulation(event_queue, flows, links):
         popped_event.link.addToBuffer(event_queue, popped_event.time, ack,
                                     popped_event.flow)
 
+      # check if the message has gotten to the router it was trying to reach
+      elif popped_event.messageReceived() != 0:
+
+        # Decrement the flow occupancy after packet finishes
+        popped_event.flow.occupancy -= 1
+
+        # Call the router that this message was sent to and update
+        # it's table using the packet information.
+        curRouter = popped_event.packet.destination
+        curRouter.updateTable(popped_event.packet)
+
       #check if the packet is a packet routing in the middle of the flow
       elif popped_event.packet.type == 'packet':
         #route the packet and update the event queue 
@@ -157,6 +168,11 @@ def run_simulation(event_queue, flows, links):
         popped_event.packet.route_index > 0:
         #route the acknowledgement and update the event queue
         popped_event.routeAcknowledgement(links, event_queue)
+
+      # Check if the packet is a message routing in the middle of the flow
+      elif popped_event.packet.type == 'message':
+        # Route the message and update the event queue
+        popped_event.routeMessage(links, event_queue)
     
     #get more time points for each link's occupancy and packet drops
     for i in range(len(links)):
