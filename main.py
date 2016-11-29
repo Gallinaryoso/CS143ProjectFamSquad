@@ -279,27 +279,27 @@ def test_1():
   link_4 = link(4, router_3, router_4, 10, 10, 64) 
   link_5 = link(5, router_4, host_2, 12.5, 10, 64) 
   
-#   #create the update table for each router, for now
-#   host_1.table = {host_2:router_1}
-#   router_1.table = {host_2:router_2}
-#   router_2.table = {host_2:router_4}
-#   router_3.table = {host_2:router_4}
-#   router_4.table = {host_2:host_2}
+  #create the update table for each router, for now
+  host_1.table = {host_2: [0, router_1]}
+  router_1.table = {host_2: [0, router_2]}
+  router_2.table = {host_2: [0, router_4]}
+  router_3.table = {host_2: [0, router_4]}
+  router_4.table = {host_2: [0, host_2]}
 
-  # Create the list of hosts and list of links for the shortestPath functions.
-  hosts = [host_1, host_2]
-  links = [link_0, link_1, link_2, link_3, link_4, link_5]
-  # Get the table of all paths to all hosts using the shortestPath fillTable
-  # function.
-  globalTable = sP.fillTable(links, hosts)
+  # # Create the list of hosts and list of links for the shortestPath functions.
+  # hosts = [host_1, host_2]
+  # links = [link_0, link_1, link_2, link_3, link_4, link_5]
+  # # Get the table of all paths to all hosts using the shortestPath fillTable
+  # # function.
+  # globalTable = sP.fillTable(links, hosts)
 
-  # Update all the hosts/routers table
-  host_1.updateTable(globalTable)
-  router_1.updateTable(globalTable)
-  router_2.updateTable(globalTable)
-  router_3.updateTable(globalTable)
-  router_4.updateTable(globalTable)
-  host_2.updateTable(globalTable)
+  # # Update all the hosts/routers table
+  # host_1.updateTable(globalTable)
+  # router_1.updateTable(globalTable)
+  # router_2.updateTable(globalTable)
+  # router_3.updateTable(globalTable)
+  # router_4.updateTable(globalTable)
+  # host_2.updateTable(globalTable)
 
   ### Some Test Code
   # for key in host_1.table:
@@ -344,37 +344,37 @@ def test_2():
   link_7 = link(7, dest_1, router_4, 12.5, 10, 64)
   link_8 = link(8, dest_3, router_4, 12.5, 10, 64)
 
-  hosts = [source_1, source_2, source_3, dest_1, dest_2, dest_3]
-  links = [link_0, link_1, link_2, link_3, link_4, link_5, link_6, link_7, link_8]
+  # hosts = [source_1, source_2, source_3, dest_1, dest_2, dest_3]
+  # links = [link_0, link_1, link_2, link_3, link_4, link_5, link_6, link_7, link_8]
 
-  # Get the table of all paths to all hosts using the shortestPath fillTable
-  # function.
-  globalTable = sP.fillTable(links, hosts)
+  # # Get the table of all paths to all hosts using the shortestPath fillTable
+  # # function.
+  # globalTable = sP.fillTable(links, hosts)
 
-  # Update all the hosts/routers table
-  source_1.updateTable(globalTable)
-  source_2.updateTable(globalTable)
-  source_3.updateTable(globalTable)
-  dest_1.updateTable(globalTable)
-  dest_2.updateTable(globalTable)
-  dest_3.updateTable(globalTable)
-  router_1.updateTable(globalTable)
-  router_2.updateTable(globalTable)
-  router_3.updateTable(globalTable)
-  router_4.updateTable(globalTable)
+  # # Update all the hosts/routers table
+  # source_1.updateTable(globalTable)
+  # source_2.updateTable(globalTable)
+  # source_3.updateTable(globalTable)
+  # dest_1.updateTable(globalTable)
+  # dest_2.updateTable(globalTable)
+  # dest_3.updateTable(globalTable)
+  # router_1.updateTable(globalTable)
+  # router_2.updateTable(globalTable)
+  # router_3.updateTable(globalTable)
+  # router_4.updateTable(globalTable)
 
   ### Some Test Code
   # for key in router_3.table:
   #   print("Next Step to " + key.id + ": " + router_3.table[key].id)
   
-  # #initialize the routing tables for all routers, for now
-  # source_1.table = {dest_1:router_1}
-  # source_2.table = {dest_2:router_1}
-  # source_3.table = {dest_3:router_3}
-  # router_1.table = {dest_1:router_2, dest_2:router_2}
-  # router_2.table = {dest_1:router_3, dest_2:dest_2}
-  # router_3.table = {dest_1:router_4, dest_3:router_4}
-  # router_4.table = {dest_1:dest_1, dest_3:dest_3}
+  #initialize the routing tables for all routers, for now
+  source_1.table = {dest_1: [0, router_1]}
+  source_2.table = {dest_2: [0, router_1]}
+  source_3.table = {dest_3: [0, router_3]}
+  router_1.table = {dest_1: [0, router_2], dest_2: [0, router_2]}
+  router_2.table = {dest_1: [0, router_3], dest_2:[0, dest_2]}
+  router_3.table = {dest_1: [0, router_4], dest_3:[0, router_4]}
+  router_4.table = {dest_1: [0, dest_1], dest_3: [0, dest_3]}
 
   #create the 3 flows
   flow_1 = flow(source_1, dest_1, 35, 0.5)
