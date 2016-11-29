@@ -1,4 +1,5 @@
 import heapq 
+from packet import packet
 
 class event: 
     def __init__(self, event_type, time, packet, link, flow):
@@ -156,8 +157,49 @@ class event:
         self.packet.route_index -= 1  
 
         #add the ack to the next link's buffer, updating its occupancy
-        next_link.addToBuffer(event_queue, self.time, self.packet, self.flow)  
+        next_link.addToBuffer(event_queue, self.time, self.packet, self.flow) 
+
+    #move the message to the next router, updating the next link and event queue    
+    def routeMessage(self, links, event_queue):
+
+        #iterate through all links to find all connected links.  
+        # For every connected link, make a new event that tries to get to the
+        # same destination. 
+        for i in range(len(links)):
+
+            # Make a new copy of all the values in this event.
+            time = self.time
+            packet = self.packet
+            flow = self.flow
         
+            # Check if each link's end_1 or end_2 is the same as the packets
+            # current router.
+            if(links[i].end_1 == self.packet.current_router):
+
+                next_link = link[i]
+                packet.current_router = next_link.end_2
+                packet.route.append(packet.current_router)
+                packet.route_index += 1
+                weight = links[i].buffer_occupancy/float\
+                    (links[i].buffer_capacity * 1000)
+                packet.current_weight += weight
+        
+                #add the packet to the next link's buffer, updating its occupancy
+                next_link.addToBuffer(event_queue, time, packet, flow)  
+
+            elif(links[i].end_2 == self.packet.current_router):
+
+                next_link = link[i]
+                packet.current_router = next_link.end_1
+                packet.route.append(packet.current_router)
+                packet.route_index += 1
+                weight = links[i].buffer_occupancy/float\
+                    (links[i].buffer_capacity * 1000)
+                packet.current_weight += weight
+        
+                #add the packet to the next link's buffer, updating its occupancy
+                next_link.addToBuffer(event_queue, time, packet, flow)  
+
 class event_queue: 
     def __init__(self): 
         self.queue = [] 
