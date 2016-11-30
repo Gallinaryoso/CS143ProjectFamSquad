@@ -285,25 +285,6 @@ def test_1(con_ctrl, verbose):
   router_2.table = {host_2: [0, router_4]}
   router_3.table = {host_2: [0, router_4]}
   router_4.table = {host_2: [0, host_2]}
-
-  # # Create the list of hosts and list of links for the shortestPath functions.
-  # hosts = [host_1, host_2]
-  # links = [link_0, link_1, link_2, link_3, link_4, link_5]
-  # # Get the table of all paths to all hosts using the shortestPath fillTable
-  # # function.
-  # globalTable = sP.fillTable(links, hosts)
-
-  # # Update all the hosts/routers table
-  # host_1.updateTable(globalTable)
-  # router_1.updateTable(globalTable)
-  # router_2.updateTable(globalTable)
-  # router_3.updateTable(globalTable)
-  # router_4.updateTable(globalTable)
-  # host_2.updateTable(globalTable)
-
-  ### Some Test Code
-  # for key in host_1.table:
-  #   print("Next Step to " + key.id + ": " + host_1.table[key].id)
   
   #create the one flow
   flow_1 = flow(host_1, host_2, 20, 0.5, con_ctrl)
@@ -311,9 +292,22 @@ def test_1(con_ctrl, verbose):
   #make arrays for the links and flows
   links = [link_0,link_1,link_2,link_3,link_4,link_5]
   flows = [flow_1]
+  routers = [router_1, router_2, router_3, router_4]
+
+  globalTable = sP.fillTable(links, flows)
+
+  # Update all the flow sources and all the routers
+  for fl in flows:
+    fl.src.updateStatic(globalTable)
+  for rt in routers:
+    rt.updateStatic(globalTable)
   
+  # Some Test Code
+  # for key in router_1.table:
+  #   print("Next Step to " + key.id + ": " + (router_1.table[key])[1].id)
+
   #simulate all of the events on the event queue with input flows and links
-  run_simulation(the_event_queue, flows, links, con_ctrl)
+  # run_simulation(the_event_queue, flows, links, con_ctrl)
   
 def test_2(con_ctrl, verbose):
   #initialize the event queue
@@ -343,29 +337,6 @@ def test_2(con_ctrl, verbose):
   link_6 = link(6, source_3, router_3, 12.5, 10, 64)
   link_7 = link(7, dest_1, router_4, 12.5, 10, 64)
   link_8 = link(8, dest_3, router_4, 12.5, 10, 64)
-
-  # hosts = [source_1, source_2, source_3, dest_1, dest_2, dest_3]
-  # links = [link_0, link_1, link_2, link_3, link_4, link_5, link_6, link_7, link_8]
-
-  # # Get the table of all paths to all hosts using the shortestPath fillTable
-  # # function.
-  # globalTable = sP.fillTable(links, hosts)
-
-  # # Update all the hosts/routers table
-  # source_1.updateTable(globalTable)
-  # source_2.updateTable(globalTable)
-  # source_3.updateTable(globalTable)
-  # dest_1.updateTable(globalTable)
-  # dest_2.updateTable(globalTable)
-  # dest_3.updateTable(globalTable)
-  # router_1.updateTable(globalTable)
-  # router_2.updateTable(globalTable)
-  # router_3.updateTable(globalTable)
-  # router_4.updateTable(globalTable)
-
-  ### Some Test Code
-  # for key in router_3.table:
-  #   print("Next Step to " + key.id + ": " + router_3.table[key].id)
   
   #initialize the routing tables for all routers, for now
   source_1.table = {dest_1: [0, router_1]}
@@ -389,7 +360,7 @@ def test_2(con_ctrl, verbose):
 
   globalTable = sP.fillTable(links, flows)
 
-    # Update all the flow sources and all the routers
+  # Update all the flow sources and all the routers
   for fl in flows:
     fl.src.updateStatic(globalTable)
   for rt in routers:
@@ -402,4 +373,5 @@ def test_2(con_ctrl, verbose):
   # simulate all of the events on the event queue with input flows and links
   run_simulation(the_event_queue, flows, links, con_ctrl)
   
-test_2(0, 1)
+test_1(0, 1)
+# test_2(0, 1)
