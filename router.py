@@ -8,6 +8,12 @@ class router:
     self.id = id
     self.table = {}
 
+  def updateStatic(self, globalTable):
+    for host in globalTable.keys():
+      subTable = globalTable[host]
+      if(self in subTable.keys()):
+        self.table[host] = subTable[self]
+        
   def updateTable(self, packet):
     host = packet.source
 
