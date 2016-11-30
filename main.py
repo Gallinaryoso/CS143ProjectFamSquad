@@ -103,8 +103,9 @@ def run_simulation(event_queue, flows, links, con_ctrl):
           if flow.con_ctrl == 1: 
               flow.window += 1./flow.window 
               print flow.window
-          if flow.con_ctrl == 0:
-            print "wtf bic"
+          #if flow.con_ctrl == 2: 
+              #flow.window += min(2 * flow.window, \
+              #(1 - 0.5) * flow.window + 0.5 * (flow.window * BASERTT/RTT + 15))
         
           #update the packet delay for the flow when the RTT is finished
           popped_event.flow.packet_delay = (popped_event.time \
