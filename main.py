@@ -199,7 +199,7 @@ def run_simulation(event_queue, flows, links, con_ctrl):
     plt.ylabel('Window Size')
     plt.ylabel('Time')
     plt.show() 
-    
+    print y 
     #graph each flow's packet delay over time
     x,y = zip(*flows[i].packet_delay_history)
     plt.plot(x, y)
