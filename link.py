@@ -73,14 +73,14 @@ class link:
       self.buffer_occupancy += packet.size
       self.buffer_elements.append(packet)   
 
-      if flow.con_ctrl == 1: 
-        flow.window += 1    
         
     #if the buffer is overfilled, then the packet is dropped
     else:
       self.packet_drops += 1
       if flow.con_ctrl == 1: 
-        flow.window /= 2 
+        flow.window /= 2.
+        if flow.window < 1.:
+          flow.window = 1. 
 
       flow.occupancy -= 1
 

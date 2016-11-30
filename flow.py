@@ -23,6 +23,8 @@ class flow:
     self.window_history = [] # the window size over time
     self.packet_delay_history = [] # the packet delay over time
     self.con_ctrl = con_ctrl
+    self.gamma = 0.5
+    self.base_rtt = 9999999999999
     
   #initialize all the packets in the flow based on the data amount
   def initializePackets(self, data_packet_size):
