@@ -6,6 +6,7 @@ from flow import flow
 from eventqueue import event_queue, event
 import shortestPath as sP
 import matplotlib.pyplot as plt
+from math import floor
 
 data_packet_size = 1024 #packet size in bytes
 data_ack_size = 64 #acknowledgement size in bytes
@@ -58,7 +59,7 @@ def startPropagating(popped_event, event_queue, links):
                                  popped_event.flow))
   
   #if the window size is not filled in the flow, add a packet to the first link
-  if popped_event.flow.occupancy < popped_event.flow.window:
+  if popped_event.flow.occupancy < int(floor(popped_event.flow.window)):
     first_link = popped_event.flow.findFirstLink(links)  
     popped_event.flow.addPacket(event_queue, first_link, popped_event.time)
   
@@ -81,7 +82,7 @@ def run_simulation(event_queue, flows, links, con_ctrl):
     first_link = flows[i].findFirstLink(links) 
      
     #fit however many packets into the first link and add buffering events
-    for j in range(flows[i].window):
+    for j in range(int(floor(flows[i].window))):
       flows[i].addPacket(event_queue, first_link, flows[i].start)
       
   #iterate through all packets, using the same sequential events in the queue
@@ -98,6 +99,12 @@ def run_simulation(event_queue, flows, links, con_ctrl):
     else:
       #check whether the acknowledgment has returned to the source for a packet
       if popped_event.finishTrip() != 0:
+          print flow.src.id
+          if flow.con_ctrl == 1: 
+              flow.window += 1./flow.window 
+              print flow.window
+          if flow.con_ctrl == 0:
+            print "wtf bic"
         
           #update the packet delay for the flow when the RTT is finished
           popped_event.flow.packet_delay = (popped_event.time \
@@ -122,7 +129,7 @@ def run_simulation(event_queue, flows, links, con_ctrl):
           #while the occupancy has not reached the window, add packets to 
           #the first link if the link capacity is not met
           while popped_event.flow.occupancy < \
-                popped_event.flow.window and first_link_filled != 0:        
+                int(floor(popped_event.flow.window)) and first_link_filled != 0:        
             first_link_filled = popped_event.flow.addPacket(event_queue,  
                                         first_link, popped_event.time)        
          
@@ -307,7 +314,7 @@ def test_1(con_ctrl, verbose):
   #   print("Next Step to " + key.id + ": " + (router_1.table[key])[1].id)
 
   #simulate all of the events on the event queue with input flows and links
-  # run_simulation(the_event_queue, flows, links, con_ctrl)
+  run_simulation(the_event_queue, flows, links, con_ctrl)
   
 def test_2(con_ctrl, verbose):
   #initialize the event queue
@@ -373,5 +380,5 @@ def test_2(con_ctrl, verbose):
   # simulate all of the events on the event queue with input flows and links
   run_simulation(the_event_queue, flows, links, con_ctrl)
   
-test_1(0, 1)
+#test_1(0, 1)
 # test_2(0, 1)

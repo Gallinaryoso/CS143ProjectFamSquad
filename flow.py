@@ -14,7 +14,10 @@ class flow:
     self.occupancy = 0 # how many packets are in the flow currently
     self.last_propagation = -1 # the time when the previous packet propagated
     self.flow_rate = 0 # the rate of packets going through the flow, in MB/s
-    self.window = 50 # the number of packets supposed to be flowing
+    if con_ctrl == 0: 
+      self.window = 50. # the number of packets supposed to be flowing
+    if con_ctrl == 1: 
+      self.window = 1.  
     self.packet_delay = 0 # the time it took for a packet to flow, in ms
     self.flow_rate_history = [] # the flow rate over time
     self.window_history = [] # the window size over time
