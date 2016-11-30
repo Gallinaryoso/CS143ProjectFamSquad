@@ -238,6 +238,7 @@ class event_queue:
             print "time: " + str(popped.time)
             print "packet_id: " + str(popped.packet.id)
             print "packet size : " + str(popped.packet.size)
+            print "packet type : " + str(popped.packet.type)
             print "current link end 1: " + str(popped.link.end_1.id)
             print "current link end 2: " + str(popped.link.end_2.id)
             print "source: " + str(popped.packet.source.id)
