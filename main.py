@@ -89,7 +89,7 @@ def run_simulation(event_queue, flows, links, con_ctrl):
   while not event_queue.is_empty():
 
     #get event after popping from queue
-    popped_event = event_queue.pop_event()   
+    popped_event = event_queue.pop_event()  
     
     #perform the transition from buffering to propagating
     if popped_event.event_type == 'Buffering':
@@ -99,12 +99,9 @@ def run_simulation(event_queue, flows, links, con_ctrl):
     else:
       #check whether the acknowledgment has returned to the source for a packet
       if popped_event.finishTrip() != 0:
-          print flow.src.id
-          if flow.con_ctrl == 1: 
-              flow.window += 1./flow.window 
-              print flow.window
+          if popped_event.flow.con_ctrl == 1: 
+              popped_event.flow.window += 1./popped_event.flow.window 
   
-        
           #update the packet delay for the flow when the RTT is finished
           popped_event.flow.packet_delay = (popped_event.time \
             - popped_event.packet.start_time) * 1000
@@ -187,7 +184,6 @@ def run_simulation(event_queue, flows, links, con_ctrl):
       links[i].packet_drops_history.append((popped_event.time, 
         links[i].packet_drops))   
     
-  print('Got here')
   flowNum = 0
   for i in range(len(flows)):
     #graph each flow's rate over time
@@ -205,7 +201,7 @@ def run_simulation(event_queue, flows, links, con_ctrl):
     plt.ylabel('Window Size')
     plt.ylabel('Time')
     plt.show() 
-    print y 
+    
     #graph each flow's packet delay over time
     x,y = zip(*flows[i].packet_delay_history)
     plt.plot(x, y)
