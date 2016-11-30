@@ -5,6 +5,7 @@ import sys
 # The router class contains a function (updateTable) to go through this 
 # global table of all paths and find the ones that should be in the routing
 # table for that router.
+# This computes the static path for the beginning of the simulation.
 
 # This static method iterates through all the links and finds
 # the ones that neighbor the inputted source.
@@ -62,8 +63,8 @@ def computePath(source, links, hostDict, visited):
 
   for link in neighbors:
 
-    # Compute the weight of this new link
-    weight = link.buffer_occupancy/float(link.buffer_capacity * 1000)
+    # Compute the weight of this new link using the link cost
+    weight = link.rate
 
     # Find the other end of this link
     if(link.end_1 == source):
@@ -137,19 +138,21 @@ def computePath(source, links, hostDict, visited):
 
 # This function fills the globalTable.
 
-def fillTable(links, hosts):
+def fillTable(links, flows):
 
   globalTable = {}
 
   # Iterates through all the hosts (endpoints)
-  for host in hosts:
+  for flow in flows:
+
+    hostDest = flow.dest
 
     # Initializes a dictionary for this host. It will ultimately contain
     # all the paths from each router to the host.
     hostDict = {}
 
     # Gets the neighbors of the host and ensures there aren't multiple.
-    neighbors = getNeighborLinks(host, links)
+    neighbors = getNeighborLinks(hostDest, links)
 
     if(len(neighbors) > 1):
       print("Network Error: Host has multiple links")
@@ -158,19 +161,19 @@ def fillTable(links, hosts):
     # This saves the other end of the connected link in the newSource 
     # variable and then passes it to the computePath function.
     link = neighbors[0]
-    if(link.end_1 == host):
+    if(link.end_1 == hostDest):
       newSource = link.end_2
     else:
       newSource = link.end_1
 
-    weightInit = link.buffer_occupancy/float(link.buffer_capacity * 1000)
-    hostDict[newSource] = [[weightInit, host]]
-    visited = [host]
+    weightInit = link.rate
+    hostDict[newSource] = [[weightInit, hostDest]]
+    visited = [hostDest]
 
     computePath(newSource, links, hostDict, visited)
-    hostDict[host] = [[0, host]]
+    hostDict[hostDest] = [[0, hostDest]]
 
     minimizeDict(hostDict)
-    globalTable[host] = hostDict
+    globalTable[hostDest] = hostDict
     
   return globalTable
