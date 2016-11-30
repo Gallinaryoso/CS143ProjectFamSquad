@@ -385,7 +385,21 @@ def test_2(con_ctrl, verbose):
   links = [link_0, link_1, link_2, link_3, link_4,
            link_5, link_6, link_7, link_8]
   flows = [flow_1, flow_2, flow_3]
-  
-  #simulate all of the events on the event queue with input flows and links
+  routers = [router_1, router_2, router_3, router_4]  
+
+  globalTable = sP.fillTable(links, flows)
+
+    # Update all the flow sources and all the routers
+  for fl in flows:
+    fl.src.updateStatic(globalTable)
+  for rt in routers:
+    rt.updateStatic(globalTable)
+
+  #   ## Some Test Code
+  # for key in router_4.table:
+  #   print("Next Step to " + key.id + ": " + (router_4.table[key])[1].id)
+
+  # simulate all of the events on the event queue with input flows and links
   run_simulation(the_event_queue, flows, links, con_ctrl)
   
+test_2(0, 1)
