@@ -7,12 +7,14 @@ from eventqueue import event_queue, event
 import shortestPath as sP
 import matplotlib.pyplot as plt
 from math import floor
+import sys
 
 data_packet_size = 1024 #packet size in bytes
 data_ack_size = 64 #acknowledgement size in bytes
 fast_time = 1
 gamma = 0.2
 alpha = 15
+dyn_rout_interval = 10
 
 #begin propagating a particular packet after buffering ends,
 #updating the event time to be when progagation ends
@@ -67,17 +69,25 @@ def startPropagating(popped_event, event_queue, links):
     popped_event.flow.addPacket(event_queue, first_link, popped_event.time)
   
 #run through the simulation by looking at each event in the event queue
-def run_simulation(event_queue, flows, links, con_ctrl):
+def run_simulation(event_queue, flows, links, routers, con_ctrl):
   
+  numPackets = 0
   #get sample router to start sending packets from to compute shortest path
   #sample_router = flow[0].src
   
   #add all of the packets for each flow, with the flow source put into route
   for flow in flows:
     flow.initializePackets(data_packet_size)
+    numPackets += len(flow.packets)
     if con_ctrl == 2: 
       event_queue.insert_event(event('FAST', flow.start + fast_time, -1, -1, flow))
-  
+
+  # for router in routers:
+  #   router.initializeRouterMessages(event_queue, flows, links, dyn_rout_interval)
+
+  for flow in flows:
+    flow.initializeMessage(event_queue, links, dyn_rout_interval)
+
   #compute the shortest path to get initial routing tables
   #sample_router.computeShortestPath(links, event_queue)
   
@@ -89,13 +99,23 @@ def run_simulation(event_queue, flows, links, con_ctrl):
     #fit however many packets into the first link and add buffering events
     for j in range(int(floor(flows[i].window))):
       flows[i].addPacket(event_queue, first_link, flows[i].start)
-      
+  
+  packetsReceived = 0
+  lastTime = dyn_rout_interval
   #iterate through all packets, using the same sequential events in the queue
   while not event_queue.is_empty():
 
     #get event after popping from queue
     popped_event = event_queue.pop_event()  
-    
+
+    # Add more messages for dynamic routing every time the dynamic routing
+    # interval has passed.
+    if(popped_event.time >= lastTime + dyn_rout_interval):
+      newTime = popped_event.time
+      for flow in flows:
+        flow.initializeMessage(event_queue, links, newTime)
+      lastTime = newTime    
+      
     #perform the transition from buffering to propagating
 
     if popped_event.event_type == 'Buffering':
@@ -146,6 +166,7 @@ def run_simulation(event_queue, flows, links, con_ctrl):
          
       #check whether the packet has reached its destination
       elif popped_event.reachedDestination() != 0:
+        packetsReceived += 1
 
         #create an acknowledgement packet based on the popped packet's info
         ack = packet(popped_event.packet.id, popped_event.flow.src, 
@@ -166,15 +187,19 @@ def run_simulation(event_queue, flows, links, con_ctrl):
                                     popped_event.flow)
 
       # check if the message has gotten to the router it was trying to reach
-      elif popped_event.messageReceived() != 0:
+      elif popped_event.messageReceived(popped_event.flow, links) != 0:
 
-        # Decrement the flow occupancy after packet finishes
-        popped_event.flow.occupancy -= 1
+        # print("\nMessage Received")
+        # for key in popped_event.packet.destDict.keys():
+        #   print("Key: " + key.id)
+        #   paths = popped_event.packet.destDict[key]
+        #   for path in paths:
+        #     print(path)
+        #     print("Weight: " + str(path[0]))
+        #     print("Next Step: " + path[1].id)
 
-        # Call the router that this message was sent to and update
-        # it's table using the packet information.
-        curRouter = popped_event.packet.destination
-        curRouter.updateTable(popped_event.packet)
+        for router in routers:
+          router.updateTable(popped_event.packet.source, popped_event.packet.destDict)
 
       #check if the packet is a packet routing in the middle of the flow
       elif popped_event.packet.type == 'packet':
@@ -199,6 +224,8 @@ def run_simulation(event_queue, flows, links, con_ctrl):
       links[i].packet_drops_history.append((popped_event.time, 
         links[i].packet_drops))   
     
+  print("Number of packets: " + str(numPackets))
+  print("Number received: " + str(packetsReceived))
   flowNum = 0
   for i in range(len(flows)):
     #graph each flow's rate over time
@@ -270,9 +297,10 @@ def test_0(con_ctrl, verbose):
   #create arrays for links and flows
   links = [link_1]
   flows = [flow_1]
+  routers = []
     
   #simulate all of the events on the event queue with input flows and links
-  run_simulation(the_event_queue, flows, links, con_ctrl)
+  run_simulation(the_event_queue, flows, links, routers, con_ctrl)
 
 def test_1(con_ctrl, verbose):
   #initialize the event queue
@@ -324,7 +352,7 @@ def test_1(con_ctrl, verbose):
   #   print("Next Step to " + key.id + ": " + (router_1.table[key])[1].id)
 
   #simulate all of the events on the event queue with input flows and links
-  run_simulation(the_event_queue, flows, links, con_ctrl)
+  run_simulation(the_event_queue, flows, links, routers, con_ctrl)
   
 def test_2(con_ctrl, verbose):
   #initialize the event queue
@@ -389,7 +417,7 @@ def test_2(con_ctrl, verbose):
   #   print("Next Step to " + key.id + ": " + (router_4.table[key])[1].id)
 
   # simulate all of the events on the event queue with input flows and links
-  run_simulation(the_event_queue, flows, links, con_ctrl)
+  run_simulation(the_event_queue, flows, links, routers, con_ctrl)
   
-# test_1(0, 1)
+test_1(0, 1)
 # test_2(0, 1)

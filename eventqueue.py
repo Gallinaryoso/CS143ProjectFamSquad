@@ -1,5 +1,6 @@
 import heapq 
 from packet import packet
+import sys
 
 class event: 
     def __init__(self, event_type, time, packet, link, flow):
@@ -33,12 +34,16 @@ class event:
           (self.packet.current_router == self.link.end_2 
           and self.link.end_1 == self.flow.src)
 
-    def messageReceived(self):
-        return self.packet.type == 'message' \
-            and (self.packet.current_router == self.link.end_1
-                and self.link.end_2 == self.packet.destination) or \
-            (self.packet.current_router == self.link.end_2
-                and self.link.end_1 == self.packet.destination)
+    def messageReceived(self, flow, links):
+        first_link = flow.findFirstLink(links)
+        return self.packet.type == 'message' and \
+            (self.packet.current_router == first_link.end_1 or \
+                self.packet.current_router == first_link.end_2)
+        # return self.packet.type == 'message' \
+        #     and ((self.packet.current_router == self.link.end_1
+        #         and self.link.end_2 == self.packet.destination) or \
+        #     (self.packet.current_router == self.link.end_2
+        #         and self.link.end_1 == self.packet.destination))
     
     #move the packet to the next router, updating the next link and event queue
     def routePacket(self, links, event_queue):
@@ -172,46 +177,172 @@ class event:
         #add the ack to the next link's buffer, updating its occupancy
         next_link.addToBuffer(event_queue, self.time, self.packet, self.flow) 
 
-    #move the message to the next router, updating the next link and event queue    
+    # move the message to the next router, updating the next link and event queue    
     def routeMessage(self, links, event_queue):
-
+        # if(len(self.packet.destDict) != 0):
+        #     print(self.packet.destDict)
+        #     for key in self.packet.destDict.keys():
+        #         print("Key: " + key.id)
+        #         for lst in self.packet.destDict[key]:
+        #             print("Weight: " + str(lst[0]))
+        #             print("Next Step: " + lst[1].id)
+            
         #iterate through all links to find all connected links.  
         # For every connected link, make a new event that tries to get to the
         # same destination. 
         for i in range(len(links)):
 
+            next_link = links[i]
+
             # Make a new copy of all the values in this event.
             time = self.time
-            packet = self.packet
+            # Make a new packet with the same details as the old packet
+            newMessage = packet(self.packet.id+1, self.packet.source, \
+                self.packet.destination, self.packet.type, self.packet.size, \
+                self.packet.current_router)
+
+            # Copy over the packets route
+            for i in self.packet.route:
+                newMessage.route.append(i)
+
+            # Copy the route index
+            newMessage.route_index = self.packet.route_index
+
+            # Copy over the current weight
+            newMessage.current_weight = self.packet.current_weight
+            
             flow = self.flow
         
             # Check if each link's end_1 or end_2 is the same as the packets
             # current router.
-            if(links[i].end_1 == self.packet.current_router):
+            if(self.packet.current_router == self.link.end_1):
 
-                next_link = link[i]
-                packet.current_router = next_link.end_2
-                packet.route.append(packet.current_router)
-                packet.route_index += 1
-                weight = links[i].buffer_occupancy/float\
-                    (links[i].buffer_capacity * 1000)
-                packet.current_weight += weight
-        
-                #add the packet to the next link's buffer, updating its occupancy
-                next_link.addToBuffer(event_queue, time, packet, flow)  
+                #check if a link is connected, but isn't the same link
+                if(next_link.end_1 == self.link.end_2 and \
+                    next_link.end_2.id not in newMessage.route):
 
-            elif(links[i].end_2 == self.packet.current_router):
+                    # Updates the message's current router
+                    newMessage.current_router = next_link.end_1
+                    # Update the message's route with the new current router
+                    newMessage.route.append(newMessage.current_router.id)
+                    # Updates the route index
+                    newMessage.route_index += 1
+                    # Compute the new weight
+                    weight = next_link.buffer_occupancy/float\
+                        (next_link.buffer_capacity * 1000)
+                    # Update the message's weight
+                    newMessage.current_weight += weight
 
-                next_link = link[i]
-                packet.current_router = next_link.end_1
-                packet.route.append(packet.current_router)
-                packet.route_index += 1
-                weight = links[i].buffer_occupancy/float\
-                    (links[i].buffer_capacity * 1000)
-                packet.current_weight += weight
-        
-                #add the packet to the next link's buffer, updating its occupancy
-                next_link.addToBuffer(event_queue, time, packet, flow)  
+                    currentRouter = self.packet.current_router
+                    newRouter = newMessage.current_router
+                    if(newRouter in self.packet.destDict.keys()):
+                        lst = [newMessage.current_weight, currentRouter]
+                        if(lst not in self.packet.destDict[newRouter]):
+                            self.packet.destDict[newRouter].append(lst)
+                    else:
+                        self.packet.destDict[newRouter] = \
+                            [[newMessage.current_weight, currentRouter]]
+
+                    newMessage.destDict = self.packet.destDict
+
+                    #add the packet to the next link's buffer, updating its occupancy
+                    next_link.addToBuffer(event_queue, time, newMessage, flow) 
+
+                #check if a link is connected, but isn't the same link
+                elif(next_link.end_2 == self.link.end_2 and \
+                    next_link.end_1.id not in newMessage.route):
+
+                    # Updates the message's current router
+                    newMessage.current_router = next_link.end_2
+                    # Update the message's route with the new current router
+                    newMessage.route.append(newMessage.current_router.id)
+                    # Updates the route index
+                    newMessage.route_index += 1
+                    # Compute the new weight
+                    weight = next_link.buffer_occupancy/float\
+                        (next_link.buffer_capacity * 1000)
+                    # Update the message's weight
+                    newMessage.current_weight += weight
+
+                    currentRouter = self.packet.current_router
+                    newRouter = newMessage.current_router
+                    if(newRouter in self.packet.destDict.keys()):
+                        lst = [newMessage.current_weight, currentRouter]
+                        if(lst not in self.packet.destDict[newRouter]):
+                            self.packet.destDict[newRouter].append(lst)
+                    else:
+                        self.packet.destDict[newRouter] = \
+                            [[newMessage.current_weight, currentRouter]]
+
+                    newMessage.destDict = self.packet.destDict
+
+                    #add the packet to the next link's buffer, updating its occupancy
+                    next_link.addToBuffer(event_queue, time, newMessage, flow)
+
+            #check if the packet is currently at end 2 of its link
+            elif(self.packet.current_router == self.link.end_2):
+
+                #check if a link is connected, but isn't the same link
+                if(next_link.end_1 == self.link.end_1 and \
+                    next_link.end_2.id not in newMessage.route):
+
+                    # Updates the message's current router
+                    newMessage.current_router = next_link.end_1
+                    # Update the message's route with the new current router
+                    newMessage.route.append(newMessage.current_router.id)
+                    # Updates the route index
+                    newMessage.route_index += 1
+                    # Compute the new weight
+                    weight = next_link.buffer_occupancy/float\
+                        (next_link.buffer_capacity * 1000)
+                    # Update the message's weight
+                    newMessage.current_weight += weight
+
+                    currentRouter = self.packet.current_router
+                    newRouter = newMessage.current_router
+                    if(newRouter in self.packet.destDict.keys()):
+                        lst = [newMessage.current_weight, currentRouter]
+                        if(lst not in self.packet.destDict[newRouter]):
+                            self.packet.destDict[newRouter].append(lst)
+                    else:
+                        self.packet.destDict[newRouter] = \
+                            [[newMessage.current_weight, currentRouter]]
+
+                    newMessage.destDict = self.packet.destDict
+
+                    #add the packet to the next link's buffer, updating its occupancy
+                    next_link.addToBuffer(event_queue, time, newMessage, flow)
+
+                #check if a link is connected, but isn't the same link
+                elif(next_link.end_2 == self.link.end_1 and \
+                    next_link.end_1.id not in newMessage.route):
+
+                    # Updatesthe message's current router
+                    newMessage.current_router = next_link.end_2
+                    # Update the message's route with the new current router
+                    newMessage.route.append(newMessage.current_router.id)
+                    # Updates the route index
+                    newMessage.route_index += 1
+                    # Compute the new weight
+                    weight = next_link.buffer_occupancy/float \
+                        (next_link.buffer_capacity * 1000)
+                    # Update the message's weight
+                    newMessage.current_weight += weight
+
+                    currentRouter = self.packet.current_router
+                    newRouter = newMessage.current_router
+                    if(newRouter in self.packet.destDict.keys()):
+                        lst = [newMessage.current_weight, currentRouter]
+                        if(lst not in self.packet.destDict[newRouter]):
+                            self.packet.destDict[newRouter].append(lst)
+                    else:
+                        self.packet.destDict[newRouter] = \
+                            [[newMessage.current_weight, currentRouter]]
+
+                    newMessage.destDict = self.packet.destDict
+
+                    #add the packet to the next link's buffer, updating its occupancy
+                    next_link.addToBuffer(event_queue, time, newMessage, flow)
 
 class event_queue: 
     def __init__(self, verbose): 
@@ -238,7 +369,7 @@ class event_queue:
         popped = heapq.heappop(self.queue)[1]
         self.queue_size -= 1
         
-        #if verbose, print all of the info about the popped event
+        # if verbose, print all of the info about the popped event
         if self.verbose != 0: 
             print "event: " + str(popped.event_type)
             print "time: " + str(popped.time)

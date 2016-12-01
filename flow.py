@@ -49,6 +49,32 @@ class flow:
       if links[i].end_1 == self.src or links[i].end_2 == self.src:
         return links[i] 
       
+  #get the last link of the flow, choosing from a list of links
+  def findLastLink(self, links):
+
+    #iterate through all links, with one link having one end as the flow dest
+    for i in range(len(links)):
+      if links[i].end_1 == self.dest or links[i].end_2 == self.dest:
+        return links[i]
+
+  def initializeMessage(self, event_queue, links, time):
+      # Get the router connected to flow.src to be the source for the packet
+      # first_link = self.findFirstLink(links)
+      # firstRouter = first_link.end_2
+      # if(first_link.end_2 == self.src):
+      #   firstRouter = first_link.end_1
+
+      # Initialize the message
+      message = packet(1, self.dest, self.src, 'message', 64, self.dest)
+      # Append the flow destination to the route since that is where it starts
+      message.route.append(self.dest.id)
+      # Choose the start time as the inputted time
+      message.start_time = time
+      # Find the last link
+      last_link = self.findLastLink(links)
+      # Add the data to buffer for the last_link
+      last_link.addToBuffer(event_queue, time, message, self)
+  
   #add a packet to the first link based on the buffer occupancy
   def addPacket(self, event_queue, first_link, time):
     
@@ -120,3 +146,4 @@ class flow:
     #return 0 to indicate that there are no more packets for the flow
     else:
       return 0
+
