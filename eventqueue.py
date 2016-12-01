@@ -10,6 +10,9 @@ class event:
         self.packet = packet #the packet the event is relevant for
         self.link = link #the link the event is relevant for
         self.flow = flow #the flow the event is relevant for
+
+       # if event_type == 'FAST':
+       #     self.packet = packet(-1,-1,-1,-1,-1,-1)
     
     #true if the packet has reached the destination, false otherwise
     def reachedDestination(self):
@@ -21,6 +24,9 @@ class event:
     
     #true if the acknowledgement has reached the source, false otherwise
     def finishTrip(self):
+        self.flow.last_rtt = (self.time - self.packet.start_time) 
+        if self.flow.last_rtt < self.flow.base_rtt: 
+            self.flow.base_rtt = self.flow.last_rtt
         return self.packet.type == 'ack' \
           and (self.packet.current_router == self.link.end_1 
           and self.link.end_2 == self.flow.src) or \
@@ -236,14 +242,16 @@ class event_queue:
         if self.verbose != 0: 
             print "event: " + str(popped.event_type)
             print "time: " + str(popped.time)
-            print "packet_id: " + str(popped.packet.id)
-            print "packet size : " + str(popped.packet.size)
-            print "packet type : " + str(popped.packet.type)
-            print "current link end 1: " + str(popped.link.end_1.id)
-            print "current link end 2: " + str(popped.link.end_2.id)
-            print "source: " + str(popped.packet.source.id)
-            print "destination: " + str(popped.packet.destination.id)
-            print "route: " + str(popped.packet.route)
+            print "flow: " + str(popped.flow.src.id)
+            if popped.event_type != 'FAST':
+                print "packet_id: " + str(popped.packet.id)
+                print "packet size : " + str(popped.packet.size)
+                print "packet type : " + str(popped.packet.type)
+                print "current link end 1: " + str(popped.link.end_1.id)
+                print "current link end 2: " + str(popped.link.end_2.id)
+                print "source: " + str(popped.packet.source.id)
+                print "destination: " + str(popped.packet.destination.id)
+                print "route: " + str(popped.packet.route)
             print "\n"
         
         return popped 

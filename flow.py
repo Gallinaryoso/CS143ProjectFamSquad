@@ -26,6 +26,7 @@ class flow:
     self.gamma = 0.5
     self.base_rtt = 9999999999999
     self.last_rtt = 9999999999999999
+    self.packet_seen = 1
     
   #initialize all the packets in the flow based on the data amount
   def initializePackets(self, data_packet_size):

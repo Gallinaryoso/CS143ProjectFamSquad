@@ -10,6 +10,9 @@ from math import floor
 
 data_packet_size = 1024 #packet size in bytes
 data_ack_size = 64 #acknowledgement size in bytes
+fast_time = 1
+gamma = 0.2
+alpha = 15
 
 #begin propagating a particular packet after buffering ends,
 #updating the event time to be when progagation ends
@@ -72,6 +75,8 @@ def run_simulation(event_queue, flows, links, con_ctrl):
   #add all of the packets for each flow, with the flow source put into route
   for flow in flows:
     flow.initializePackets(data_packet_size)
+    if con_ctrl == 2: 
+      event_queue.insert_event(event('FAST', flow.start + fast_time, -1, -1, flow))
   
   #compute the shortest path to get initial routing tables
   #sample_router.computeShortestPath(links, event_queue)
@@ -92,10 +97,21 @@ def run_simulation(event_queue, flows, links, con_ctrl):
     popped_event = event_queue.pop_event()  
     
     #perform the transition from buffering to propagating
-    if popped_event.event_type == 'Buffering':
-      startPropagating(popped_event, event_queue, links)
 
+    if popped_event.event_type == 'Buffering':
+      popped_event.flow.packet_seen = 1 
+      startPropagating(popped_event, event_queue, links)
+      print popped_event.flow.window
     #perform the transition from propagating to buffering
+    elif popped_event.event_type == 'FAST':
+      popped_event.flow.window = min(2 * popped_event.flow.window, \
+      (1 - gamma) * popped_event.flow.window + \
+      gamma * (popped_event.flow.window * \
+      popped_event.flow.base_rtt/popped_event.flow.last_rtt + alpha))
+      if popped_event.flow.packet_seen == 1: 
+        next_fast = event('FAST', popped_event.time + fast_time, -1, -1, popped_event.flow)
+        popped_event.flow.packet_seen = 0
+        event_queue.insert_event(next_fast)
     else:
       #check whether the acknowledgment has returned to the source for a packet
       if popped_event.finishTrip() != 0:
@@ -201,7 +217,7 @@ def run_simulation(event_queue, flows, links, con_ctrl):
     plt.ylabel('Window Size')
     plt.ylabel('Time')
     plt.show() 
-    
+
     #graph each flow's packet delay over time
     x,y = zip(*flows[i].packet_delay_history)
     plt.plot(x, y)
@@ -329,6 +345,7 @@ def test_2(con_ctrl, verbose):
   router_3 = router('R3')
   router_4 = router('R4')
   
+
   #create the 9 links
   link_0 = link(0, source_2, router_1, 12.5, 10, 128)
   link_1 = link(1, router_1, router_2, 10, 10, 128) 
