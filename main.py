@@ -101,7 +101,6 @@ def run_simulation(event_queue, flows, links, con_ctrl):
     if popped_event.event_type == 'Buffering':
       popped_event.flow.packet_seen = 1 
       startPropagating(popped_event, event_queue, links)
-      print popped_event.flow.window
     #perform the transition from propagating to buffering
     elif popped_event.event_type == 'FAST':
       popped_event.flow.window = min(2 * popped_event.flow.window, \
