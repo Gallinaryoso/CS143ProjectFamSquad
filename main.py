@@ -230,6 +230,13 @@ def run_simulation(event_queue, flows, links, routers, con_ctrl):
   for i in range(len(flows)):
     #graph each flow's rate over time
     x,y = zip(*flows[i].flow_rate_history)
+    x_ = []
+    y_ = []
+    for e in range(0,len(x) - 200, 200):
+      x_.append(sum(x[e:e+200]) / 200)
+      y_.append(sum(y[e:e+200]) / 200)
+    x = x_
+    y = y_
     plt.plot(x,y)
     plt.title('Flow Rate over Time for Flow ' + str(flowNum))
     plt.ylabel('Flow Rate')
@@ -257,6 +264,13 @@ def run_simulation(event_queue, flows, links, routers, con_ctrl):
   for i in range(len(links)):
     #graph each link's rate over time
     x, y = zip(*links[i].link_rate_history)
+    x_ = []
+    y_ = []
+    for e in range(0,len(x) - 200, 200):
+      x_.append(sum(x[e:e+200]) / 200)
+      y_.append(sum(y[e:e+200]) / 200)
+    x = x_
+    y = y_
     plt.plot(x,y)
     plt.title('Link Rate over Time for Link ' + str(links[i].id))
     plt.ylabel('Link Rate')
