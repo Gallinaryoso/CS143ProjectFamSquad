@@ -433,5 +433,4 @@ def test_2(con_ctrl, verbose):
   # simulate all of the events on the event queue with input flows and links
   run_simulation(the_event_queue, flows, links, routers, con_ctrl)
   
-test_1(0, 1)
 # test_2(0, 1)
