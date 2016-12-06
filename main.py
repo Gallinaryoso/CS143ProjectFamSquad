@@ -14,7 +14,7 @@ data_ack_size = 64 #acknowledgement size in bytes
 fast_time = 1
 gamma = 0.2
 alpha = 15
-dyn_rout_interval = 10
+dyn_rout_interval = 10 #how often to send messages for dynamic routing
 
 #begin propagating a particular packet after buffering ends,
 #updating the event time to be when progagation ends
@@ -71,25 +71,16 @@ def startPropagating(popped_event, event_queue, links):
 #run through the simulation by looking at each event in the event queue
 def run_simulation(event_queue, flows, links, routers, con_ctrl):
   
-  numPackets = 0
-  #get sample router to start sending packets from to compute shortest path
-  #sample_router = flow[0].src
-  
   #add all of the packets for each flow, with the flow source put into route
   for flow in flows:
     flow.initializePackets(data_packet_size)
-    numPackets += len(flow.packets)
     if con_ctrl == 2: 
       event_queue.insert_event(event('FAST', flow.start + fast_time, -1, -1, flow))
 
-  # for router in routers:
-  #   router.initializeRouterMessages(event_queue, flows, links, dyn_rout_interval)
-
+  # Initialize a message for each flow in the network in order to start
+  # dynamic routing
   for flow in flows:
     flow.initializeMessage(event_queue, links, dyn_rout_interval)
-
-  #compute the shortest path to get initial routing tables
-  #sample_router.computeShortestPath(links, event_queue)
   
   #initialize first link's buffer for each flow from host based on window size
   for i in range(len(flows)):
@@ -100,7 +91,6 @@ def run_simulation(event_queue, flows, links, routers, con_ctrl):
     for j in range(int(floor(flows[i].window))):
       flows[i].addPacket(event_queue, first_link, flows[i].start)
   
-  packetsReceived = 0
   lastTime = dyn_rout_interval
   #iterate through all packets, using the same sequential events in the queue
   while not event_queue.is_empty():
@@ -166,8 +156,7 @@ def run_simulation(event_queue, flows, links, routers, con_ctrl):
          
       #check whether the packet has reached its destination
       elif popped_event.reachedDestination() != 0:
-        packetsReceived += 1
-
+        
         #create an acknowledgement packet based on the popped packet's info
         ack = packet(popped_event.packet.id, popped_event.flow.src, 
                      popped_event.flow.dest, 'ack', data_ack_size, 
@@ -188,16 +177,8 @@ def run_simulation(event_queue, flows, links, routers, con_ctrl):
 
       # check if the message has gotten to the router it was trying to reach
       elif popped_event.messageReceived(popped_event.flow, links) != 0:
-
-        # print("\nMessage Received")
-        # for key in popped_event.packet.destDict.keys():
-        #   print("Key: " + key.id)
-        #   paths = popped_event.packet.destDict[key]
-        #   for path in paths:
-        #     print(path)
-        #     print("Weight: " + str(path[0]))
-        #     print("Next Step: " + path[1].id)
-
+        # For every router, call the updateTable function with the 
+        # packets dictionary of paths taken
         for router in routers:
           router.updateTable(popped_event.packet.source, popped_event.packet.destDict)
 
@@ -224,8 +205,6 @@ def run_simulation(event_queue, flows, links, routers, con_ctrl):
       links[i].packet_drops_history.append((popped_event.time, 
         links[i].packet_drops))   
     
-  print("Number of packets: " + str(numPackets))
-  print("Number received: " + str(packetsReceived))
   flowNum = 0
   for i in range(len(flows)):
     #graph each flow's rate over time
@@ -360,10 +339,6 @@ def test_1(con_ctrl, verbose):
     fl.src.updateStatic(globalTable)
   for rt in routers:
     rt.updateStatic(globalTable)
-  
-  # Some Test Code
-  # for key in router_1.table:
-  #   print("Next Step to " + key.id + ": " + (router_1.table[key])[1].id)
 
   #simulate all of the events on the event queue with input flows and links
   run_simulation(the_event_queue, flows, links, routers, con_ctrl)
@@ -386,7 +361,6 @@ def test_2(con_ctrl, verbose):
   router_3 = router('R3')
   router_4 = router('R4')
   
-
   #create the 9 links
   link_0 = link(0, source_2, router_1, 12.5, 10, 128)
   link_1 = link(1, router_1, router_2, 10, 10, 128) 
@@ -426,11 +400,6 @@ def test_2(con_ctrl, verbose):
   for rt in routers:
     rt.updateStatic(globalTable)
 
-  #   ## Some Test Code
-  # for key in router_4.table:
-  #   print("Next Step to " + key.id + ": " + (router_4.table[key])[1].id)
-
   # simulate all of the events on the event queue with input flows and links
   run_simulation(the_event_queue, flows, links, routers, con_ctrl)
   
-# test_2(0, 1)
