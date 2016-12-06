@@ -57,13 +57,10 @@ class flow:
       if links[i].end_1 == self.dest or links[i].end_2 == self.dest:
         return links[i]
 
+  #initializes a message for this flow with the message source as the flow
+  #destination and the message destination as the flow source.
+  #This message is then added to the buffer.
   def initializeMessage(self, event_queue, links, time):
-      # Get the router connected to flow.src to be the source for the packet
-      # first_link = self.findFirstLink(links)
-      # firstRouter = first_link.end_2
-      # if(first_link.end_2 == self.src):
-      #   firstRouter = first_link.end_1
-
       # Initialize the message
       message = packet(1, self.dest, self.src, 'message', 64, self.dest)
       # Append the flow destination to the route since that is where it starts
