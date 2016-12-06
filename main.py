@@ -290,10 +290,9 @@ def test_0(con_ctrl, verbose):
   #create arrays for links and flows
   links = [link_1]
   flows = [flow_1]
-  routers = []
     
   #simulate all of the events on the event queue with input flows and links
-  run_simulation(the_event_queue, flows, links, routers, con_ctrl)
+  run_simulation(the_event_queue, flows, links, con_ctrl)
 
 def test_1(con_ctrl, verbose):
   #initialize the event queue
@@ -389,8 +388,8 @@ def test_2(con_ctrl, verbose):
   #create arrays for the links and flows
   links = [link_0, link_1, link_2, link_3, link_4,
            link_5, link_6, link_7, link_8]
-  flows = [flow_1, flow_2, flow_3]
-  routers = [router_1, router_2, router_3, router_4]  
+  flows = [flow_1, flow_2, flow_3] 
+  routers = [router_1, router_2, router_3, router_4]
 
   globalTable = sP.fillTable(links, flows)
 
