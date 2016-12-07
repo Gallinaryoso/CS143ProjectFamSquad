@@ -22,7 +22,6 @@ class link:
   
   #update link buffer by adding a packet, only if the buffer is not filled
   def addToBuffer(self, event_queue, time, packet, flow):
-
     
     #check if the next packet wil not overfill the link buffer
     if self.buffer_occupancy + packet.size \
@@ -41,7 +40,8 @@ class link:
         last = self.buffer_elements[len(self.buffer_elements) - 1]
         
         #check whether there is half-duplex congestion
-        switch = last.current_router != packet.current_router          
+        switch = last.current_router != packet.current_router and \
+           (packet.type == 'packet' and last.type == 'packet')          
         
         #if there is no half-duplex congestion, add transmission accordingly
         if switch == 0:
