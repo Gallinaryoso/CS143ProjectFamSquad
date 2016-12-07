@@ -13,7 +13,7 @@ data_packet_size = 1024 #packet size in bytes
 data_ack_size = 64 #acknowledgement size in bytes
 fast_time = 1
 gamma = 0.2
-alpha = 15
+alpha = 60
 dyn_rout_interval = 10 #how often to send messages for dynamic routing
 weight = 1000 
 

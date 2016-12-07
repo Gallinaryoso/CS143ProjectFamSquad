@@ -4,7 +4,7 @@ from router import router
 from flow import flow 
 from eventqueue import event_queue, event
 import shortestPath as sP
-from main import *
+from run import *
 import sys
 
 def main(argv): 
@@ -90,7 +90,7 @@ def main(argv):
 		i += 1
 
 	# Now, make all the flows.
-	for line in flowsLst:
+	for line in flows:
 		# Split the line into a list, which must have 4 values
 		info = line.split(' ')
 		if(len(info) != 4):
