@@ -205,72 +205,95 @@ def run_simulation(event_queue, flows, links, routers, con_ctrl):
       links[i].packet_drops_history.append((popped_event.time, 
         links[i].packet_drops))   
     
-  flowNum = 0
+  legend = [] 
+
   for i in range(len(flows)):
     #graph each flow's rate over time
     x,y = zip(*flows[i].flow_rate_history)
     x_ = []
     y_ = []
-    for e in range(0,len(x) - 200, 200):
-      x_.append(sum(x[e:e+200]) / 200)
-      y_.append(sum(y[e:e+200]) / 200)
-    x = x_
-    y = y_
-    plt.plot(x,y)
-    plt.title('Flow Rate over Time for Flow ' + str(flowNum))
-    plt.ylabel('Flow Rate')
-    plt.xlabel('Time')
-    plt.show()
-    
+    for e in range(0,len(x) - weight, weight):
+      x_.append(sum(x[e:e+ weight]) / weight)
+      y_.append(sum(y[e:e+ weight]) / weight)
+    plt.plot(x_,y_)
+    legend.append("Flow " + str(i))
+  
+  plt.legend(legend, loc='best')
+  plt.title('Flow Rate over Time')
+  plt.ylabel('Flow Rate')
+  plt.xlabel('Time')
+  plt.show()
+
+  for i in range(len(flows)):
     #graph each flow's window size over time
     x,y = zip(*flows[i].window_history)
-    plt.plot(x, y)
-    plt.title('Flow Window Size over Time for Flow ' + str(flowNum))
-    plt.ylabel('Window Size')
-    plt.ylabel('Time')
-    plt.show() 
+    plt.plot(x,y)
+  
+  plt.legend(legend, loc='best')
+  plt.title('Flow Window Size over Time')
+  plt.ylabel('Window Size')
+  plt.ylabel('Time')
+  plt.show() 
 
+  for i in range(len(flows)):
     #graph each flow's packet delay over time
     x,y = zip(*flows[i].packet_delay_history)
-    plt.plot(x, y)
-    plt.title('Flow Packet Delay over Time for Flow ' + str(flowNum))
-    plt.ylabel('Packet Delay')
-    plt.ylabel('Time')
-    plt.show()  
-
-    flowNum += 1
-    
-  for i in range(len(links)):
-    #graph each link's rate over time
-    x, y = zip(*links[i].link_rate_history)
     x_ = []
     y_ = []
-    for e in range(0,len(x) - 200, 200):
-      x_.append(sum(x[e:e+200]) / 200)
-      y_.append(sum(y[e:e+200]) / 200)
-    x = x_
-    y = y_
-    plt.plot(x,y)
-    plt.title('Link Rate over Time for Link ' + str(links[i].id))
-    plt.ylabel('Link Rate')
-    plt.xlabel('Time')
-    plt.show()
-    
+    for e in range(0,len(x) - weight, weight):
+      x_.append(sum(x[e:e+ weight]) / weight)
+      y_.append(sum(y[e:e+ weight]) / weight)
+    plt.plot(x_,y_)
+
+  plt.legend(legend, loc='best')
+  plt.title('Flow Packet Delay over Time')
+  plt.ylabel('Packet Delay')
+  plt.ylabel('Time')
+  plt.show()  
+
+  legend = [] 
+
+  for i in range(3):
+    #graph each link's rate over time
+    x,y = zip(*links[i].link_rate_history)
+    x_ = []
+    y_ = []
+    for e in range(0,len(x) - weight, weight):
+      x_.append(sum(x[e:e+ weight]) / weight)
+      y_.append(sum(y[e:e+ weight]) / weight)
+    plt.plot(x_,y_)
+    legend.append("Link " + str(i))
+  
+  plt.legend(legend, loc='best')
+  plt.title('Link Rate over Time')
+  plt.ylabel('Link Rate')
+  plt.xlabel('Time')
+  plt.show()
+
+  for i in range(3):
     #graph each link's buffer occupancy over time
     x, y = zip(*links[i].buffer_occupancy_history)
-    plt.plot(x,y)
-    plt.title('Link Buffer Occupancy over Time for Link ' + str(links[i].id))
-    plt.ylabel('Buffer Occupancy')
-    plt.xlabel('Time')
-    plt.show() 
-    
+    x_ = []
+    y_ = []
+    for e in range(0,len(x) - 2 * weight, 2 * weight):
+      x_.append(sum(x[e:e+ 2 * weight]) / 2 * weight)
+      y_.append(sum(y[e:e+ 2 * weight]) / 2 * weight)
+    plt.plot(x_,y_)
+  plt.legend(legend, loc='best')
+  plt.title('Link Buffer Occupancy over Time')
+  plt.ylabel('Buffer Occupancy')
+  plt.xlabel('Time')
+  plt.show() 
+
+  for i in range(3):
     #graph each link's packet drop count over time
     x, y = zip(*links[i].packet_drops_history)
     plt.plot(x,y)
-    plt.title('Link Packet Drop Count over Time for Link ' + str(links[i].id))
-    plt.ylabel('Packet Drop Count')
-    plt.ylabel('Time')
-    plt.show()    
+  plt.legend(legend, loc='best')
+  plt.title('Link Packet Drop Count')
+  plt.ylabel('Packet Drop Count')
+  plt.ylabel('Time')
+  plt.show()    
 
 # def test_0(con_ctrl, verbose):
   
