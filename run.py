@@ -1,13 +1,11 @@
 from packet import packet 
 from link import link
-# import test 
 from router import router 
 from flow import flow 
 from eventqueue import event_queue, event
 import shortestPath as sP
 import matplotlib.pyplot as plt
 from math import floor
-import time 
 import sys
 
 data_packet_size = 1024 #packet size in bytes
