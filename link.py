@@ -23,7 +23,7 @@ class link:
   #update link buffer by adding a packet, only if the buffer is not filled
   def addToBuffer(self, event_queue, time, packet, flow):
     
-    #check if the next packet wil not overfill the link buffer
+    #check if the next packet will not overfill the link buffer
     if self.buffer_occupancy + packet.size \
       < self.buffer_capacity * 1000:
       
@@ -84,7 +84,8 @@ class link:
 
       flow.occupancy -= 1
 
-    flow.window_history.append((time, flow.window))
+    if packet.type != 'message':
+      flow.window_history.append((time, flow.window))
       
   #get the transmission time for a packet based on the link rate
   def getTransmission(self, packet):

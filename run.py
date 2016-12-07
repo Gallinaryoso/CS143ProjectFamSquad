@@ -12,9 +12,9 @@ import sys
 
 data_packet_size = 1024 #packet size in bytes
 data_ack_size = 64 #acknowledgement size in bytes
-fast_interval = 1
+fast_interval = 0.1
 fast_limit = 10
-gamma = 0.2
+gamma = 0.02
 alpha = 60
 dyn_rout_interval = 10 #how often to send messages for dynamic routing
 weight = 1000 
@@ -37,7 +37,8 @@ def startPropagating(popped_event, event_queue, links):
       popped_event.flow.last_propagation = popped_event.time
       
       #add the time point to the flow's rate history
-      popped_event.flow.flow_rate_history.append((popped_event.time, 
+      if popped_event.event_type != 'FAST' and popped_event.packet.type != 'message':
+        popped_event.flow.flow_rate_history.append((popped_event.time, 
         popped_event.flow.flow_rate))
    
   #add delay to relevant packets in the same link buffer when
@@ -55,7 +56,8 @@ def startPropagating(popped_event, event_queue, links):
     popped_event.link.last_propagation = popped_event.time
     
     #add the time point to the link's rate history
-    popped_event.link.link_rate_history.append((popped_event.time, 
+    if popped_event.event_type != 'FAST' and popped_event.packet.type != 'message':
+      popped_event.link.link_rate_history.append((popped_event.time, 
         popped_event.link.current_rate))
   
   #update the current time of the packet
@@ -112,7 +114,8 @@ def run_simulation(event_queue, flows, links, routers, con_ctrl):
     #perform the transition from buffering to propagating
 
     if popped_event.event_type == 'Buffering':
-      popped_event.flow.time_packet_last_seen = popped_event.time 
+      if popped_event.packet.type != 'message':
+        popped_event.flow.time_packet_last_seen = popped_event.time 
       startPropagating(popped_event, event_queue, links)
     #perform the transition from propagating to buffering
     elif popped_event.event_type == 'FAST':
@@ -128,7 +131,8 @@ def run_simulation(event_queue, flows, links, routers, con_ctrl):
     else:
       #check whether the acknowledgment has returned to the source for a packet
       if popped_event.event_type == 'Propagating':
-        popped_event.flow.time_packet_last_seen = popped_event.time 
+        if popped_event.event_type != 'FAST' and popped_event.packet.type != 'message':
+          popped_event.flow.time_packet_last_seen = popped_event.time 
       if popped_event.finishTrip() != 0:
           if popped_event.flow.con_ctrl == 1: 
               popped_event.flow.window += 1./popped_event.flow.window 
@@ -138,7 +142,8 @@ def run_simulation(event_queue, flows, links, routers, con_ctrl):
             - popped_event.packet.start_time) * 1000
           
           #add the time point to the flow's packet delay history
-          popped_event.flow.packet_delay_history.append((popped_event.time, 
+          if popped_event.event_type != 'FAST' and popped_event.packet.type != 'message':
+            popped_event.flow.packet_delay_history.append((popped_event.time, 
             popped_event.flow.packet_delay)) 
           
           #decrement the flow occupancy after packet finishes
@@ -206,9 +211,10 @@ def run_simulation(event_queue, flows, links, routers, con_ctrl):
     
     #get more time points for each link's occupancy and packet drops
     for i in range(len(links)):
-      links[i].buffer_occupancy_history.append((popped_event.time, 
+      if popped_event.event_type != 'FAST' and popped_event.packet.type != 'message':
+        links[i].buffer_occupancy_history.append((popped_event.time, 
         links[i].buffer_occupancy))
-      links[i].packet_drops_history.append((popped_event.time, 
+        links[i].packet_drops_history.append((popped_event.time, 
         links[i].packet_drops))   
     
   legend = [] 
@@ -222,7 +228,7 @@ def run_simulation(event_queue, flows, links, routers, con_ctrl):
       x_.append(sum(x[e:e+ weight]) / weight)
       y_.append(sum(y[e:e+ weight]) / weight)
     plt.plot(x_,y_)
-    legend.append("Flow " + str(i))
+    legend.append("Flow " + str(i + 1))
   
   plt.legend(legend, loc='best')
   plt.title('Flow Rate over Time')
@@ -284,8 +290,8 @@ def run_simulation(event_queue, flows, links, routers, con_ctrl):
       x_ = []
       y_ = []
       for e in range(0,len(x) - 2 * weight, 2 * weight):
-        x_.append(sum(x[e:e+ 2 * weight]) / 2 * weight)
-        y_.append(sum(y[e:e+ 2 * weight]) / 2 * weight)
+        x_.append(sum(x[e:e+ 2 * weight]) / (2 * weight))
+        y_.append(sum(y[e:e+ 2 * weight]) / (2 * weight))
       plt.plot(x_,y_)
   plt.legend(legend, loc='best')
   plt.title('Link Buffer Occupancy over Time')
