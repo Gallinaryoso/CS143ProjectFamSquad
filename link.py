@@ -90,7 +90,7 @@ class link:
   def getTransmission(self, packet):
     return packet.size * 8 / (self.rate * 1000000.)  
     
-  #update all of the packet delays on a buffer when the first packet is removed
+  #update the link buffer properties when the first packet is removed
   def updateBufferPackets(self, packet):
     
     #remove the packet from the buffer, updating the buffer occupancy
