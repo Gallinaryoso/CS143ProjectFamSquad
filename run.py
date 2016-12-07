@@ -15,6 +15,7 @@ fast_time = 1
 gamma = 0.2
 alpha = 15
 dyn_rout_interval = 10 #how often to send messages for dynamic routing
+weight = 1000 
 
 #begin propagating a particular packet after buffering ends,
 #updating the event time to be when progagation ends
@@ -253,16 +254,17 @@ def run_simulation(event_queue, flows, links, routers, con_ctrl):
 
   legend = [] 
 
-  for i in range(3):
+  for i in range(len(links)):
     #graph each link's rate over time
-    x,y = zip(*links[i].link_rate_history)
-    x_ = []
-    y_ = []
-    for e in range(0,len(x) - weight, weight):
-      x_.append(sum(x[e:e+ weight]) / weight)
-      y_.append(sum(y[e:e+ weight]) / weight)
-    plt.plot(x_,y_)
-    legend.append("Link " + str(i))
+    if len(links[i].link_rate_history) > 0: 
+      x,y = zip(*links[i].link_rate_history)
+      x_ = []
+      y_ = []
+      for e in range(0,len(x) - weight, weight):
+        x_.append(sum(x[e:e+ weight]) / weight)
+        y_.append(sum(y[e:e+ weight]) / weight)
+      plt.plot(x_,y_)
+      legend.append("Link " + str(i))
   
   plt.legend(legend, loc='best')
   plt.title('Link Rate over Time')
@@ -270,25 +272,27 @@ def run_simulation(event_queue, flows, links, routers, con_ctrl):
   plt.xlabel('Time')
   plt.show()
 
-  for i in range(3):
+  for i in range(len(links)):
     #graph each link's buffer occupancy over time
-    x, y = zip(*links[i].buffer_occupancy_history)
-    x_ = []
-    y_ = []
-    for e in range(0,len(x) - 2 * weight, 2 * weight):
-      x_.append(sum(x[e:e+ 2 * weight]) / 2 * weight)
-      y_.append(sum(y[e:e+ 2 * weight]) / 2 * weight)
-    plt.plot(x_,y_)
+    if len(links[i].buffer_occupancy_history) > 0: 
+      x, y = zip(*links[i].buffer_occupancy_history)
+      x_ = []
+      y_ = []
+      for e in range(0,len(x) - 2 * weight, 2 * weight):
+        x_.append(sum(x[e:e+ 2 * weight]) / 2 * weight)
+        y_.append(sum(y[e:e+ 2 * weight]) / 2 * weight)
+      plt.plot(x_,y_)
   plt.legend(legend, loc='best')
   plt.title('Link Buffer Occupancy over Time')
   plt.ylabel('Buffer Occupancy')
   plt.xlabel('Time')
   plt.show() 
 
-  for i in range(3):
+  for i in range(len(links)):
     #graph each link's packet drop count over time
-    x, y = zip(*links[i].packet_drops_history)
-    plt.plot(x,y)
+    if len(links[i].packet_drops_history) > 0: 
+      x, y = zip(*links[i].packet_drops_history)
+      plt.plot(x,y)
   plt.legend(legend, loc='best')
   plt.title('Link Packet Drop Count')
   plt.ylabel('Packet Drop Count')
