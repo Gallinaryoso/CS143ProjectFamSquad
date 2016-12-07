@@ -25,9 +25,10 @@ class event:
     
     #true if the acknowledgement has reached the source, false otherwise
     def finishTrip(self):
-        self.flow.last_rtt = (self.time - self.packet.start_time) 
-        if self.flow.last_rtt < self.flow.base_rtt: 
-            self.flow.base_rtt = self.flow.last_rtt
+        if self.packet.type != 'message':
+            self.flow.last_rtt = (self.time - self.packet.start_time) 
+            if self.flow.last_rtt < self.flow.base_rtt: 
+                self.flow.base_rtt = self.flow.last_rtt
         return self.packet.type == 'ack' \
           and (self.packet.current_router == self.link.end_1 
           and self.link.end_2 == self.flow.src) or \
