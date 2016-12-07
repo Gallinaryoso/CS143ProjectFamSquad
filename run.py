@@ -7,11 +7,13 @@ from eventqueue import event_queue, event
 import shortestPath as sP
 import matplotlib.pyplot as plt
 from math import floor
+import time 
 import sys
 
 data_packet_size = 1024 #packet size in bytes
 data_ack_size = 64 #acknowledgement size in bytes
-fast_time = 1
+fast_interval = 1
+fast_limit = 10
 gamma = 0.2
 alpha = 60
 dyn_rout_interval = 10 #how often to send messages for dynamic routing
@@ -76,7 +78,7 @@ def run_simulation(event_queue, flows, links, routers, con_ctrl):
   for flow in flows:
     flow.initializePackets(data_packet_size)
     if con_ctrl == 2: 
-      event_queue.insert_event(event('FAST', flow.start + fast_time, -1, -1, flow))
+      event_queue.insert_event(event('FAST', flow.start + fast_interval, -1, -1, flow))
 
   # Initialize a message for each flow in the network in order to start
   # dynamic routing
@@ -110,7 +112,7 @@ def run_simulation(event_queue, flows, links, routers, con_ctrl):
     #perform the transition from buffering to propagating
 
     if popped_event.event_type == 'Buffering':
-      popped_event.flow.packet_seen = 1 
+      popped_event.flow.time_packet_last_seen = popped_event.time 
       startPropagating(popped_event, event_queue, links)
     #perform the transition from propagating to buffering
     elif popped_event.event_type == 'FAST':
@@ -118,12 +120,15 @@ def run_simulation(event_queue, flows, links, routers, con_ctrl):
       (1 - gamma) * popped_event.flow.window + \
       gamma * (popped_event.flow.window * \
       popped_event.flow.base_rtt/popped_event.flow.last_rtt + alpha))
-      if popped_event.flow.packet_seen == 1: 
-        next_fast = event('FAST', popped_event.time + fast_time, -1, -1, popped_event.flow)
+   
+      if popped_event.flow.time_packet_last_seen + fast_limit >= popped_event.time:
+        next_fast = event('FAST', popped_event.time + fast_interval, -1, -1, popped_event.flow)
         popped_event.flow.packet_seen = 0
         event_queue.insert_event(next_fast)
     else:
       #check whether the acknowledgment has returned to the source for a packet
+      if popped_event.event_type == 'Propagating':
+        popped_event.flow.time_packet_last_seen = popped_event.time 
       if popped_event.finishTrip() != 0:
           if popped_event.flow.con_ctrl == 1: 
               popped_event.flow.window += 1./popped_event.flow.window 
