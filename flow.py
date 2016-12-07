@@ -98,7 +98,8 @@ class flow:
           last = first_link.buffer_elements[len(first_link.buffer_elements) - 1]
           
           #check whether there is half-duplex congestion
-          switch = last.current_router != new_packet.current_router          
+          switch = last.current_router != new_packet.current_router \
+             and last.type == 'packet'
           
           #if there is no half-duplex congestion, add transmission accordingly
           if switch == 0:
