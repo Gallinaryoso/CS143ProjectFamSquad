@@ -48,7 +48,7 @@ class router:
         else:
           self.table[source] = bestPath
 
-    print(self.table)
+    #print(self.table)
 
   def chooseNextDest(self, newPacket):
     dest = newPacket.destination

@@ -78,6 +78,7 @@ class link:
     else:
       self.packet_drops += 1
       if flow.con_ctrl == 1: 
+        flow.ss_threshold = flow.window / 2 
         flow.window /= 2.
         if flow.window < 1.:
           flow.window = 1. 
