@@ -133,7 +133,10 @@ def run_simulation(event_queue, flows, links, routers, con_ctrl):
           popped_event.flow.time_packet_last_seen = popped_event.time 
       if popped_event.finishTrip() != 0:
           if popped_event.flow.con_ctrl == 1: 
+            if popped_event.flow.ss_threshold < popped_event.flow.window: 
               popped_event.flow.window += 1./popped_event.flow.window 
+            else:
+              popped_event.flow.window += 1.
   
           #update the packet delay for the flow when the RTT is finished
           popped_event.flow.packet_delay = (popped_event.time \
