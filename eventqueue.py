@@ -306,7 +306,7 @@ class event_queue:
         self.queue_size -= 1
         
         # if verbose, print all of the info about the popped event
-        if self.verbose != 0 and popped.packet.type == 'message': 
+        if self.verbose != 0: 
             print "event: " + str(popped.event_type)
             print "time: " + str(popped.time)
             print "flow: " + str(popped.flow.src.id)
