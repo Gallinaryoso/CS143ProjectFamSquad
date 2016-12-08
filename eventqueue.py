@@ -176,6 +176,11 @@ class event:
     # it on each connected link   
     def routeMessage(self, links, event_queue):
 
+        # This stores the weight of the current link in order to update
+        # the weight of a message we forward.
+        currentLinkWeight = \
+            self.link.buffer_occupancy/float(self.link.buffer_capacity * 1000)
+
         #iterate through all links to find all connected links.  
         # For every connected link, make a new event that tries to get to the
         # same destination. 
@@ -251,11 +256,8 @@ class event:
                 newMessage.route.append(newMessage.current_router.id)
                 # Updates the route index
                 newMessage.route_index += 1
-                # Compute the new weight
-                weight = next_link.buffer_occupancy/float \
-                    (next_link.buffer_capacity * 1000)
                 # Update the message's weight
-                newMessage.current_weight += weight
+                newMessage.current_weight += currentLinkWeight
 
                 # Add the current router as a new key to the packet's dictionary
                 # and the path that it took to get there from the source, along
@@ -304,7 +306,7 @@ class event_queue:
         self.queue_size -= 1
         
         # if verbose, print all of the info about the popped event
-        if self.verbose != 0: 
+        if self.verbose != 0 and popped.packet.type == 'message': 
             print "event: " + str(popped.event_type)
             print "time: " + str(popped.time)
             print "flow: " + str(popped.flow.src.id)

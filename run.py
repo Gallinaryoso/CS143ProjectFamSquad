@@ -14,7 +14,7 @@ fast_interval = 0.1 #how often to update FAST window size
 fast_limit = 10 #seconds after no more packets received to stop updating fast
 gamma = 0.02 # FAST Parameter
 alpha = 60 # FAST Parameter
-dyn_rout_interval = 10 #how often to send messages for dynamic routing
+dyn_rout_interval = 1 #how often to send messages for dynamic routing
 weight = 1000 # used for weighted averages in graph 
 
 #begin propagating a particular packet after buffering ends,
@@ -82,8 +82,8 @@ def run_simulation(event_queue, flows, links, routers, con_ctrl):
 
   # Initialize a message for each flow in the network in order to start
   # dynamic routing
-  for flow in flows:
-    flow.initializeMessage(event_queue, links, dyn_rout_interval)
+  # for flow in flows:
+  #   flow.initializeMessage(event_queue, links, dyn_rout_interval)
   
   #initialize first link's buffer for each flow from host based on window size
   for i in range(len(flows)):
@@ -217,7 +217,7 @@ def run_simulation(event_queue, flows, links, routers, con_ctrl):
         links[i].buffer_occupancy))
         links[i].packet_drops_history.append((popped_event.time, 
         links[i].packet_drops))   
-    
+
   legend = [] 
 
   for i in range(len(flows)):
