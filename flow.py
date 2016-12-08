@@ -18,15 +18,16 @@ class flow:
       self.window = 50. # the number of packets supposed to be flowing
     if con_ctrl == 1 or con_ctrl == 2: 
       self.window = 1. 
+      if con_ctrl == 1:
+        self.ss_threshold = 9999999999
     self.packet_delay = 0 # the time it took for a packet to flow, in ms
     self.flow_rate_history = [] # the flow rate over time
     self.window_history = [] # the window size over time
     self.packet_delay_history = [] # the packet delay over time
     self.con_ctrl = con_ctrl
-    self.gamma = 0.5
     self.base_rtt = 9999999999999
     self.last_rtt = 9999999999999999
-    self.packet_seen = 1
+    self.time_packet_last_seen = 9999999
     
   #initialize all the packets in the flow based on the data amount
   def initializePackets(self, data_packet_size):
