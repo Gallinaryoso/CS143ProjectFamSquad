@@ -235,6 +235,7 @@ def run_simulation(event_queue, flows, links, routers, con_ctrl):
   plt.title('Flow Rate over Time')
   plt.ylabel('Flow Rate')
   plt.xlabel('Time')
+  plt.gca().set_ylim(bottom=0)
   plt.show()
 
   for i in range(len(flows)):
@@ -246,6 +247,7 @@ def run_simulation(event_queue, flows, links, routers, con_ctrl):
   plt.title('Flow Window Size over Time')
   plt.ylabel('Window Size')
   plt.ylabel('Time')
+  plt.gca().set_ylim(bottom=0)
   plt.show() 
 
   for i in range(len(flows)):
@@ -262,6 +264,7 @@ def run_simulation(event_queue, flows, links, routers, con_ctrl):
   plt.title('Flow Packet Delay over Time')
   plt.ylabel('Packet Delay')
   plt.ylabel('Time')
+  plt.gca().set_ylim(bottom=0)
   plt.show()  
 
   legend = [] 
@@ -282,6 +285,7 @@ def run_simulation(event_queue, flows, links, routers, con_ctrl):
   plt.title('Link Rate over Time')
   plt.ylabel('Link Rate')
   plt.xlabel('Time')
+  plt.gca().set_ylim(bottom=0)
   plt.show()
 
   for i in range(len(links)):
@@ -298,6 +302,7 @@ def run_simulation(event_queue, flows, links, routers, con_ctrl):
   plt.title('Link Buffer Occupancy over Time')
   plt.ylabel('Buffer Occupancy')
   plt.xlabel('Time')
+  plt.gca().set_ylim(bottom=0)
   plt.show() 
 
   for i in range(len(links)):
@@ -309,5 +314,6 @@ def run_simulation(event_queue, flows, links, routers, con_ctrl):
   plt.title('Link Packet Drop Count')
   plt.ylabel('Packet Drop Count')
   plt.ylabel('Time')
+  plt.gca().set_ylim(bottom=0)
   plt.show()    
   
