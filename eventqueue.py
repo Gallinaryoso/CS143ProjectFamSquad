@@ -11,9 +11,6 @@ class event:
         self.packet = packet #the packet the event is relevant for
         self.link = link #the link the event is relevant for
         self.flow = flow #the flow the event is relevant for
-
-       # if event_type == 'FAST':
-       #     self.packet = packet(-1,-1,-1,-1,-1,-1)
     
     #true if the packet has reached the destination, false otherwise
     def reachedDestination(self):
