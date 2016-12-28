@@ -10,12 +10,12 @@ import sys
 
 data_packet_size = 1024 #packet size in bytes
 data_ack_size = 64 #acknowledgement size in bytes
-fast_interval = 0.1
-fast_limit = 10
-gamma = 0.02
-alpha = 60
+fast_interval = 0.1 #how often to update FAST window size
+fast_limit = 10 #seconds after no more packets received to stop updating fast
+gamma = 0.02 # FAST Parameter
+alpha = 60 # FAST Parameter
 dyn_rout_interval = 10 #how often to send messages for dynamic routing
-weight = 1000 
+weight = 1000 # used for weighted averages in graph 
 
 #begin propagating a particular packet after buffering ends,
 #updating the event time to be when progagation ends
